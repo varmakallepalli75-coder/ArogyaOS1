@@ -1,0 +1,22 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+
+# Node
+**/node_modules/
+**/dist/
+**/.env
+**/.env.local
+
+# Database
+*.db
+*.sqlite
+
+# Mac
+.DS_Store
+
+# Secrets
+**/appsettings.Production.json
