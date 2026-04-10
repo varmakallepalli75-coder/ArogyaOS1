@@ -1,0 +1,11 @@
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/bin/Debug/net10.0/ArogyaOS.Core.deps.json
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/bin/Debug/net10.0/ArogyaOS.Core.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/bin/Debug/net10.0/ArogyaOS.Core.pdb
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.AssemblyInfoInputs.cache
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.AssemblyInfo.cs
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.csproj.CoreCompileInputs.cache
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/refint/ArogyaOS.Core.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.pdb
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ref/ArogyaOS.Core.dll

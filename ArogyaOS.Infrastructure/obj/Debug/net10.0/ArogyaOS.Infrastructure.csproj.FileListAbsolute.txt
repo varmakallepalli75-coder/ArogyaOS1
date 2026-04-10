@@ -1,0 +1,17 @@
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/bin/Debug/net10.0/ArogyaOS.Infrastructure.deps.json
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/bin/Debug/net10.0/ArogyaOS.Infrastructure.runtimeconfig.json
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/bin/Debug/net10.0/ArogyaOS.Infrastructure.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/bin/Debug/net10.0/ArogyaOS.Infrastructure.pdb
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/bin/Debug/net10.0/ArogyaOS.Core.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/bin/Debug/net10.0/ArogyaOS.Core.pdb
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.csproj.AssemblyReference.cache
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.AssemblyInfoInputs.cache
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.AssemblyInfo.cs
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.B66F5FA4.Up2Date
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/refint/ArogyaOS.Infrastructure.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.pdb
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ArogyaOS.Infrastructure.genruntimeconfig.cache
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Infrastructure/obj/Debug/net10.0/ref/ArogyaOS.Infrastructure.dll

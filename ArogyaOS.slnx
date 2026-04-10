@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ArogyaOS.API/ArogyaOS.API.csproj" />
+  <Project Path="ArogyaOS.Core/ArogyaOS.Core.csproj" />
+  <Project Path="ArogyaOS.Infrastructure/ArogyaOS.Infrastructure.csproj" />
+</Solution>
