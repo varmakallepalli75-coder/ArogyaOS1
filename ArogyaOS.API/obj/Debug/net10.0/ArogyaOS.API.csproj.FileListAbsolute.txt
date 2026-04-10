@@ -133,3 +133,4 @@
 /Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.API/obj/Debug/net10.0/ArogyaOS.API.pdb
 /Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.API/obj/Debug/net10.0/ArogyaOS.API.genruntimeconfig.cache
 /Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.API/obj/Debug/net10.0/ref/ArogyaOS.API.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.API/obj/Debug/net10.0/ArogyaOS.API.sourcelink.json

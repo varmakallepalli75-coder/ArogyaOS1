@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/layout/Layout'
 import Login from './pages/auth/Login'
 import Dashboard from './pages/dashboard/Dashboard'
+import Patients from './pages/patients/Patients'
+import PatientProfile from './pages/patients/PatientProfile'
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
@@ -24,6 +26,12 @@ function AppRoutes() {
       } />
       <Route path="/dashboard" element={
         <ProtectedRoute><Dashboard /></ProtectedRoute>
+      } />
+      <Route path="/patients" element={
+        <ProtectedRoute><Patients /></ProtectedRoute>
+      } />
+      <Route path="/patients/:id" element={
+        <ProtectedRoute><PatientProfile /></ProtectedRoute>
       } />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -9,3 +9,4 @@
 /Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/refint/ArogyaOS.Core.dll
 /Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.pdb
 /Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ref/ArogyaOS.Core.dll
+/Users/shanmukhavarmakallepalli/ArogyaOS/ArogyaOS.Core/obj/Debug/net10.0/ArogyaOS.Core.sourcelink.json

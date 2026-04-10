@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
 using ArogyaOS.Infrastructure;
 using ArogyaOS.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // ─── Register Services Manually ───────────────────────
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.ITokenService, ArogyaOS.Infrastructure.Services.TokenService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IAuthService, ArogyaOS.Infrastructure.Services.AuthService>();
+builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IPatientService, ArogyaOS.Infrastructure.Services.PatientService>();
 
 // ─── JWT Authentication ────────────────────────────────
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
