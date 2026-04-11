@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArogyaOS.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1fe1bb35490b2c84a849dfe746d207e3ecc31ba5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+586e431f731888a4417c64bd238104563ec2ab33")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArogyaOS.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArogyaOS.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
