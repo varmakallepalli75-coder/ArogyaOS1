@@ -126,6 +126,7 @@ public class AppointmentService : IAppointmentService
         var result = appointments.Select(a => new TodayAppointmentResponse
         {
             Id = a.Id,
+            PatientId = a.PatientId,
             AppointmentNumber = a.AppointmentNumber,
             TokenNumber = a.TokenNumber ?? "",
             PatientName = a.Patient != null ? a.Patient.FullName : "",

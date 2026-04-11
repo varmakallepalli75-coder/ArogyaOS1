@@ -25,6 +25,7 @@ public class AppointmentResponse
 public class TodayAppointmentResponse
 {
     public Guid Id { get; set; }
+    public Guid PatientId { get; set; }
     public string AppointmentNumber { get; set; } = string.Empty;
     public string TokenNumber { get; set; } = string.Empty;
     public string PatientName { get; set; } = string.Empty;
