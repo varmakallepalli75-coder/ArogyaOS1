@@ -17,6 +17,7 @@ builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.ITokenService, Arogy
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IAuthService, ArogyaOS.Infrastructure.Services.AuthService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IPatientService, ArogyaOS.Infrastructure.Services.PatientService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IDepartmentService, ArogyaOS.Infrastructure.Services.DepartmentService>();
+builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IAppointmentService, ArogyaOS.Infrastructure.Services.AppointmentService>();
 
 // ─── JWT Authentication ────────────────────────────────
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

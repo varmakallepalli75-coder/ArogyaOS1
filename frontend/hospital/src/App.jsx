@@ -6,6 +6,7 @@ import Dashboard from './pages/dashboard/Dashboard'
 import Patients from './pages/patients/Patients'
 import PatientProfile from './pages/patients/PatientProfile'
 import Doctors from './pages/doctors/Doctors'
+import Appointments from './pages/appointments/Appointments'
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
@@ -37,6 +38,9 @@ function AppRoutes() {
       <Route path="/patients/:id" element={
         <ProtectedRoute><PatientProfile /></ProtectedRoute>
       } />
+      <Route path="/appointments" element={
+  <ProtectedRoute><Appointments /></ProtectedRoute>
+} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

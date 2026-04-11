@@ -1,0 +1,241 @@
+using ArogyaOS.Core.DTOs.Request;
+using ArogyaOS.Core.DTOs.Response;
+using ArogyaOS.Core.Entities;
+using ArogyaOS.Core.Enums;
+using ArogyaOS.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace ArogyaOS.Infrastructure.Services;
+
+public interface IAppointmentService
+{
+    Task<ApiResponse<AppointmentResponse>> CreateAsync(
+        CreateAppointmentRequest request, Guid hospitalId);
+    Task<ApiResponse<List<TodayAppointmentResponse>>> GetTodayAsync(
+        Guid hospitalId, Guid? doctorId);
+    Task<ApiResponse<PagedResponse<AppointmentResponse>>> GetAllAsync(
+        Guid hospitalId, DateTime? date, Guid? doctorId, int page, int pageSize);
+    Task<ApiResponse<AppointmentResponse>> UpdateStatusAsync(
+        Guid id, UpdateAppointmentStatusRequest request, Guid hospitalId);
+}
+
+public class AppointmentService : IAppointmentService
+{
+    private readonly AppDbContext _context;
+
+    public AppointmentService(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<ApiResponse<AppointmentResponse>> CreateAsync(
+        CreateAppointmentRequest request, Guid hospitalId)
+    {
+        // ─── Verify patient exists ─────────────────────
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.Id == request.PatientId
+                && p.HospitalId == hospitalId);
+        if (patient == null)
+            return ApiResponse<AppointmentResponse>.Fail("Patient not found");
+
+        // ─── Verify doctor exists ──────────────────────
+        var doctor = await _context.Doctors
+            .Include(d => d.Department)
+            .FirstOrDefaultAsync(d => d.Id == request.DoctorId
+                && d.HospitalId == hospitalId);
+        if (doctor == null)
+            return ApiResponse<AppointmentResponse>.Fail("Doctor not found");
+
+        // ─── Generate appointment number ───────────────
+        var count = await _context.Appointments
+            .Where(a => a.HospitalId == hospitalId)
+            .CountAsync();
+        var appointmentNumber = $"APT-{DateTime.Now:yyyyMMdd}-{(count + 1):D4}";
+
+        // ─── Generate token number ─────────────────────
+        var todayCount = await _context.Appointments
+            .Where(a => a.HospitalId == hospitalId
+                && a.DoctorId == request.DoctorId
+                && a.AppointmentDateTime.Date == request.AppointmentDateTime.Date)
+            .CountAsync();
+        var tokenNumber = $"T{(todayCount + 1):D3}";
+
+        var appointment = new Appointment
+        {
+            HospitalId = hospitalId,
+            AppointmentNumber = appointmentNumber,
+            PatientId = request.PatientId,
+            DoctorId = request.DoctorId,
+            DepartmentId = request.DepartmentId,
+            AppointmentDateTime = request.AppointmentDateTime,
+            Status = AppointmentStatus.Scheduled,
+            ConsultationType = (ConsultationType)request.ConsultationType,
+            Priority = (PriorityLevel)request.Priority,
+            ChiefComplaint = request.ChiefComplaint,
+            Notes = request.Notes,
+            TokenNumber = tokenNumber,
+            IsWalkIn = request.IsWalkIn
+        };
+
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+
+        return ApiResponse<AppointmentResponse>.Ok(
+            new AppointmentResponse
+            {
+                Id = appointment.Id,
+                AppointmentNumber = appointmentNumber,
+                PatientId = patient.Id,
+                PatientName = patient.FullName,
+                PatientUHID = patient.UHID,
+                PatientMobile = patient.MobileNumber,
+                DoctorId = doctor.Id,
+                DoctorName = doctor.FullName,
+                DepartmentName = doctor.Department?.Name ?? "",
+                AppointmentDateTime = appointment.AppointmentDateTime,
+                Status = appointment.Status.ToString(),
+                ConsultationType = appointment.ConsultationType.ToString(),
+                Priority = appointment.Priority.ToString(),
+                ChiefComplaint = appointment.ChiefComplaint,
+                TokenNumber = tokenNumber,
+                IsWalkIn = appointment.IsWalkIn,
+                CreatedAt = appointment.CreatedAt
+            },
+            $"Appointment booked! Token: {tokenNumber}");
+    }
+
+    public async Task<ApiResponse<List<TodayAppointmentResponse>>> GetTodayAsync(
+        Guid hospitalId, Guid? doctorId)
+    {
+        var today = DateTime.Today;
+        var query = _context.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+            .ThenInclude(d => d.Department)
+            .Where(a => a.HospitalId == hospitalId
+                && a.AppointmentDateTime.Date == today
+                && a.Status != AppointmentStatus.Cancelled);
+
+        if (doctorId.HasValue)
+            query = query.Where(a => a.DoctorId == doctorId.Value);
+
+        var appointments = await query
+            .OrderBy(a => a.AppointmentDateTime)
+            .ToListAsync();
+
+        var result = appointments.Select(a => new TodayAppointmentResponse
+        {
+            Id = a.Id,
+            AppointmentNumber = a.AppointmentNumber,
+            TokenNumber = a.TokenNumber ?? "",
+            PatientName = a.Patient != null ? a.Patient.FullName : "",
+            PatientUHID = a.Patient?.UHID ?? "",
+            PatientMobile = a.Patient?.MobileNumber ?? "",
+            PatientAge = a.Patient != null
+                ? (int)((DateTime.UtcNow - a.Patient.DateOfBirth).TotalDays / 365.25)
+                : 0,
+            PatientGender = a.Patient?.Gender.ToString() ?? "",
+            DoctorName = a.Doctor != null ? a.Doctor.FullName : "",
+            DepartmentName = a.Doctor?.Department?.Name ?? "",
+            AppointmentDateTime = a.AppointmentDateTime,
+            Status = a.Status.ToString(),
+            ChiefComplaint = a.ChiefComplaint,
+            IsWalkIn = a.IsWalkIn
+        }).ToList();
+
+        return ApiResponse<List<TodayAppointmentResponse>>.Ok(result);
+    }
+
+    public async Task<ApiResponse<PagedResponse<AppointmentResponse>>> GetAllAsync(
+        Guid hospitalId, DateTime? date, Guid? doctorId, int page, int pageSize)
+    {
+        var query = _context.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+            .ThenInclude(d => d.Department)
+            .Where(a => a.HospitalId == hospitalId);
+
+        if (date.HasValue)
+            query = query.Where(a => a.AppointmentDateTime.Date == date.Value.Date);
+
+        if (doctorId.HasValue)
+            query = query.Where(a => a.DoctorId == doctorId.Value);
+
+        var total = await query.CountAsync();
+
+        var appointments = await query
+            .OrderByDescending(a => a.AppointmentDateTime)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var result = appointments.Select(a => new AppointmentResponse
+        {
+            Id = a.Id,
+            AppointmentNumber = a.AppointmentNumber,
+            PatientId = a.PatientId,
+            PatientName = a.Patient != null ? a.Patient.FullName : "",
+            PatientUHID = a.Patient?.UHID ?? "",
+            PatientMobile = a.Patient?.MobileNumber ?? "",
+            DoctorId = a.DoctorId,
+            DoctorName = a.Doctor != null ? a.Doctor.FullName : "",
+            DepartmentName = a.Doctor?.Department?.Name ?? "",
+            AppointmentDateTime = a.AppointmentDateTime,
+            Status = a.Status.ToString(),
+            ConsultationType = a.ConsultationType.ToString(),
+            Priority = a.Priority.ToString(),
+            ChiefComplaint = a.ChiefComplaint,
+            TokenNumber = a.TokenNumber,
+            IsWalkIn = a.IsWalkIn,
+            CancelledReason = a.CancelledReason,
+            CreatedAt = a.CreatedAt
+        }).ToList();
+
+        return ApiResponse<PagedResponse<AppointmentResponse>>.Ok(
+            new PagedResponse<AppointmentResponse>
+            {
+                Items = result,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            });
+    }
+
+    public async Task<ApiResponse<AppointmentResponse>> UpdateStatusAsync(
+        Guid id, UpdateAppointmentStatusRequest request, Guid hospitalId)
+    {
+        var appointment = await _context.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Doctor)
+            .ThenInclude(d => d.Department)
+            .FirstOrDefaultAsync(a => a.Id == id
+                && a.HospitalId == hospitalId);
+
+        if (appointment == null)
+            return ApiResponse<AppointmentResponse>.Fail("Appointment not found");
+
+        appointment.Status = (AppointmentStatus)request.Status;
+        appointment.UpdatedAt = DateTime.UtcNow;
+
+        if (request.Status == (int)AppointmentStatus.Cancelled)
+        {
+            appointment.CancelledReason = request.CancelledReason;
+            appointment.CancelledAt = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return ApiResponse<AppointmentResponse>.Ok(
+            new AppointmentResponse
+            {
+                Id = appointment.Id,
+                AppointmentNumber = appointment.AppointmentNumber,
+                PatientName = appointment.Patient?.FullName ?? "",
+                DoctorName = appointment.Doctor?.FullName ?? "",
+                Status = appointment.Status.ToString(),
+                AppointmentDateTime = appointment.AppointmentDateTime,
+                TokenNumber = appointment.TokenNumber,
+                CreatedAt = appointment.CreatedAt
+            }, "Status updated successfully");
+    }
+}
