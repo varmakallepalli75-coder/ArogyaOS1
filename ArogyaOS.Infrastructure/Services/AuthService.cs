@@ -13,6 +13,7 @@ public interface IAuthService
     Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request);
     Task<ApiResponse<RegisterHospitalResponse>> RegisterHospitalAsync(RegisterHospitalRequest request);
     Task<ApiResponse<LoginResponse>> RefreshTokenAsync(string refreshToken);
+    Task<ApiResponse<LoginResponse>> PatientLoginAsync(PatientLoginRequest request);
 }
 
 public class AuthService : IAuthService
@@ -245,19 +246,72 @@ public class AuthService : IAuthService
         {
             AccessToken = accessToken,
             RefreshToken = newRefreshToken,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(480),
+            ExpiresAt = DateTime.UtcNow.AddDays(1),
             User = new UserInfo
             {
                 Id = user.Id,
-                FullName = user.FullName,
+                FullName = $"{user.FirstName} {user.LastName}",
                 Email = user.Email ?? "",
                 Role = user.Role,
                 HospitalId = user.HospitalId,
                 DoctorId = user.DoctorId,
                 StaffId = user.StaffId,
-                PatientId = user.PatientId,
-                ProfilePhotoUrl = user.ProfilePhotoUrl
+                PatientId = user.PatientId
             }
         });
+    }
+    public async Task<ApiResponse<LoginResponse>> PatientLoginAsync(
+    PatientLoginRequest request)
+{
+    // ─── Find hospital by code ─────────────────────
+    var hospital = await _context.Hospitals
+        .FirstOrDefaultAsync(h =>
+            h.HospitalCode == request.HospitalCode);
+
+    if (hospital == null)
+        return ApiResponse<LoginResponse>.Fail(
+            "Hospital not found");
+
+    // ─── Find patient by mobile ────────────────────
+    var patient = await _context.Patients
+        .FirstOrDefaultAsync(p =>
+            p.HospitalId == hospital.Id &&
+            p.MobileNumber == request.MobileNumber);
+
+    if (patient == null)
+        return ApiResponse<LoginResponse>.Fail(
+            "Patient not found. Please register at the hospital first.");
+
+    // ─── Verify DOB if provided ────────────────────
+    if (!string.IsNullOrEmpty(request.DateOfBirth))
+    {
+        if (DateTime.TryParse(request.DateOfBirth, out var dob))
+        {
+            if (patient.DateOfBirth.Date != dob.Date)
+                return ApiResponse<LoginResponse>.Fail(
+                    "Invalid date of birth");
+        }
+    }
+
+    // ─── Generate token ────────────────────────────
+    var token = _tokenService.GeneratePatientToken(
+        patient, hospital);
+
+    return ApiResponse<LoginResponse>.Ok(new LoginResponse
+    {
+        AccessToken = token,
+        RefreshToken = "",
+        ExpiresAt = DateTime.UtcNow.AddDays(1),
+        User = new UserInfo
+        {
+            Id = patient.Id.ToString(),
+            FullName = patient.FullName,
+            Email = patient.MobileNumber,
+            Role = UserRole.Patient,
+            HospitalId = hospital.Id,
+            HospitalName = hospital.Name,
+            PatientId = patient.Id
+        }
+    });
     }
 }

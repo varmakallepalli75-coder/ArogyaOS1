@@ -8,6 +8,7 @@ import PatientProfile from './pages/patients/PatientProfile'
 import Doctors from './pages/doctors/Doctors'
 import Appointments from './pages/appointments/Appointments'
 import OPD from './pages/opd/OPD'
+import Billing from './pages/billing/Billing'
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
@@ -44,6 +45,9 @@ function AppRoutes() {
 } />
       <Route path="/appointments" element={
   <ProtectedRoute><Appointments /></ProtectedRoute>
+} />
+<Route path="/billing" element={
+  <ProtectedRoute><Billing /></ProtectedRoute>
 } />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

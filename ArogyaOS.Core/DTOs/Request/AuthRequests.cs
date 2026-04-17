@@ -62,3 +62,11 @@ public class ChangePasswordRequest
     [MinLength(8)]
     public string NewPassword { get; set; } = string.Empty;
 }
+public class PatientLoginRequest
+{
+    [Required]
+    public string MobileNumber { get; set; } = string.Empty;
+    [Required]
+    public string HospitalCode { get; set; } = string.Empty;
+    public string? DateOfBirth { get; set; }
+}

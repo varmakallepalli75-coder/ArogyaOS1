@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using ArogyaOS.Core.Enums;
+using ArogyaOS.Core.Entities;
+using ArogyaOS.Core.Entities;
 using ArogyaOS.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +15,7 @@ public interface ITokenService
 {
     string GenerateAccessToken(AppUser user);
     string GenerateRefreshToken();
+    string GeneratePatientToken(Patient patient, Hospital hospital);
 }
 
 public class TokenService : ITokenService
@@ -65,4 +68,32 @@ public class TokenService : ITokenService
         rng.GetBytes(randomBytes);
         return Convert.ToBase64String(randomBytes);
     }
+    public string GeneratePatientToken(Patient patient, Hospital hospital)
+{
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, patient.Id.ToString()),
+        new Claim(ClaimTypes.Email, patient.MobileNumber),
+        new Claim(ClaimTypes.Name, patient.FullName),
+        new Claim("role", "Patient"),
+        new Claim("hospitalId", hospital.Id.ToString()),
+        new Claim("patientId", patient.Id.ToString()),
+        new Claim("hospitalCode", hospital.HospitalCode)
+    };
+
+    var key = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+    var creds = new SigningCredentials(
+        key, SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+        issuer: _config["Jwt:Issuer"],
+        audience: _config["Jwt:Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddDays(1),
+        signingCredentials: creds
+    );
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
 }

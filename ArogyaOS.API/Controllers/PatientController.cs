@@ -89,4 +89,30 @@ public class PatientController : ControllerBase
             return Guid.Empty;
         return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
     }
+    // ─── GET api/patient/my-profile ───────────────────
+[HttpGet("my-profile")]
+public async Task<IActionResult> GetMyProfile()
+{
+    var patientId = GetPatientId();
+    if (patientId == Guid.Empty) return Unauthorized();
+    var hospitalId = GetHospitalId();
+    var result = await _patientService
+        .GetByIdAsync(patientId, hospitalId);
+    if (!result.Success) return NotFound(result);
+    return Ok(result);
+}
+
+
+
+
+
+private Guid GetPatientId()
+{
+    var claim = User.Claims
+        .FirstOrDefault(c => c.Type == "patientId");
+    if (claim == null || string.IsNullOrEmpty(claim.Value))
+        return Guid.Empty;
+    return Guid.TryParse(claim.Value, out var id)
+        ? id : Guid.Empty;
+}
 }
