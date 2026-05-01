@@ -16,13 +16,13 @@ export default function Home() {
   const loadAppointments = async () => {
     setLoading(true)
     try {
-      const res = await api.get('/appointment/today')
+      const res = await api.get('/appointment/my?page=1&pageSize=10')
       if (res.data.success) {
-        const myApts = res.data.data.filter(
-          a => a.patientUHID === user?.uhid ||
-          a.patientName === user?.fullName
+        const today = new Date().toDateString()
+        const todayApts = res.data.data.items.filter(
+          a => new Date(a.appointmentDateTime).toDateString() === today
         )
-        setAppointments(myApts)
+        setAppointments(todayApts)
       }
     } catch(e) { console.error(e) }
     finally { setLoading(false) }

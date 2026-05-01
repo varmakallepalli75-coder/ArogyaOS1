@@ -17,18 +17,15 @@ public class AppointmentController : ControllerBase
         _appointmentService = appointmentService;
     }
 
-    // ─── GET api/appointment/today ────────────────────
     [HttpGet("today")]
     public async Task<IActionResult> GetToday([FromQuery] Guid? doctorId)
     {
         var hospitalId = GetHospitalId();
         if (hospitalId == Guid.Empty) return Unauthorized();
-        var result = await _appointmentService
-            .GetTodayAsync(hospitalId, doctorId);
+        var result = await _appointmentService.GetTodayAsync(hospitalId, doctorId);
         return Ok(result);
     }
 
-    // ─── GET api/appointment ──────────────────────────
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] DateTime? date,
@@ -38,44 +35,55 @@ public class AppointmentController : ControllerBase
     {
         var hospitalId = GetHospitalId();
         if (hospitalId == Guid.Empty) return Unauthorized();
-        var result = await _appointmentService
-            .GetAllAsync(hospitalId, date, doctorId, page, pageSize);
+        var result = await _appointmentService.GetAllAsync(hospitalId, date, doctorId, page, pageSize);
         return Ok(result);
     }
 
-    // ─── POST api/appointment ─────────────────────────
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyAppointments(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var hospitalId = GetHospitalId();
+        var patientId = GetPatientId();
+        if (patientId == Guid.Empty) return Unauthorized();
+        var result = await _appointmentService.GetByPatientAsync(patientId, hospitalId, page, pageSize);
+        return Ok(result);
+    }
+
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateAppointmentRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateAppointmentRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var hospitalId = GetHospitalId();
         if (hospitalId == Guid.Empty) return Unauthorized();
-        var result = await _appointmentService
-            .CreateAsync(request, hospitalId);
+        var result = await _appointmentService.CreateAsync(request, hospitalId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 
-    // ─── PUT api/appointment/{id}/status ──────────────
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateStatus(
         Guid id,
         [FromBody] UpdateAppointmentStatusRequest request)
     {
         var hospitalId = GetHospitalId();
-        var result = await _appointmentService
-            .UpdateStatusAsync(id, request, hospitalId);
+        var result = await _appointmentService.UpdateStatusAsync(id, request, hospitalId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 
     private Guid GetHospitalId()
     {
-        var claim = User.Claims
-            .FirstOrDefault(c => c.Type == "hospitalId");
-        if (claim == null || string.IsNullOrEmpty(claim.Value))
-            return Guid.Empty;
+        var claim = User.Claims.FirstOrDefault(c => c.Type == "hospitalId");
+        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
+        return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
+    }
+
+    private Guid GetPatientId()
+    {
+        var claim = User.Claims.FirstOrDefault(c => c.Type == "patientId");
+        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
         return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
     }
 }

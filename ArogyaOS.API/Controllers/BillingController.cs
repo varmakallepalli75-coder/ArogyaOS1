@@ -26,8 +26,7 @@ public class BillingController : ControllerBase
     {
         var hospitalId = GetHospitalId();
         if (hospitalId == Guid.Empty) return Unauthorized();
-        var result = await _billingService
-            .GetAllAsync(hospitalId, date, search, page, pageSize);
+        var result = await _billingService.GetAllAsync(hospitalId, date, search, page, pageSize);
         return Ok(result);
     }
 
@@ -40,37 +39,50 @@ public class BillingController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyBills(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var hospitalId = GetHospitalId();
+        var patientId = GetPatientId();
+        if (patientId == Guid.Empty) return Unauthorized();
+        var result = await _billingService.GetByPatientAsync(patientId, hospitalId, page, pageSize);
+        return Ok(result);
+    }
+
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateBillRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateBillRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var hospitalId = GetHospitalId();
         if (hospitalId == Guid.Empty) return Unauthorized();
-        var result = await _billingService
-            .CreateBillAsync(request, hospitalId);
+        var result = await _billingService.CreateBillAsync(request, hospitalId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 
     [HttpPost("payment")]
-    public async Task<IActionResult> RecordPayment(
-        [FromBody] RecordPaymentRequest request)
+    public async Task<IActionResult> RecordPayment([FromBody] RecordPaymentRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var hospitalId = GetHospitalId();
-        var result = await _billingService
-            .RecordPaymentAsync(request, hospitalId);
+        var result = await _billingService.RecordPaymentAsync(request, hospitalId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 
     private Guid GetHospitalId()
     {
-        var claim = User.Claims
-            .FirstOrDefault(c => c.Type == "hospitalId");
-        if (claim == null || string.IsNullOrEmpty(claim.Value))
-            return Guid.Empty;
+        var claim = User.Claims.FirstOrDefault(c => c.Type == "hospitalId");
+        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
+        return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
+    }
+
+    private Guid GetPatientId()
+    {
+        var claim = User.Claims.FirstOrDefault(c => c.Type == "patientId");
+        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
         return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
     }
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { appointmentService } from '../../services/appointmentService'
 import { patientService } from '../../services/patientService'
 import { aiService } from '../../services/aiService'
+import api from '../../services/api'
 
 export default function OPD() {
   const [queue, setQueue] = useState([])
@@ -405,16 +406,37 @@ export default function OPD() {
             <div className="flex gap-3 pb-4">
               <button
                 onClick={async () => {
-                  setSaving(true)
-                  try {
-                    await appointmentService.updateStatus(selectedAppointment.id, 3)
-                    setSuccess('Consultation saved successfully!')
-                    setSelectedAppointment(null)
-                    setPatient(null)
-                    loadQueue()
-                  } catch(e) {}
-                  finally { setSaving(false) }
-                }}
+  setSaving(true)
+  try {
+    console.log('Sending:', {appointmentId: selectedAppointment.id, patientId: selectedAppointment.patientId, doctorId: selectedAppointment.doctorId})
+    await api.post('/opd/consultation', {
+      appointmentId: selectedAppointment.id,
+      patientId: selectedAppointment.patientId,
+      doctorId: selectedAppointment.doctorId,
+      ...vitals,
+      ...consultation,
+      medicines: prescription.map(m => ({
+        medicineName: m.medicineName,
+        genericName: m.genericName || '',
+        dosage: m.dosage || '',
+        frequency: m.frequency || '',
+        duration: m.duration || '',
+        instructions: m.instructions || '',
+        quantity: m.quantity || 1
+      }))
+    })
+    setSuccess('Consultation saved successfully!')
+    setSelectedAppointment(null)
+    setPatient(null)
+    setPrescription([])
+    setVitals({ bloodPressure: '', pulseRate: '', temperature: '',
+      spO2: '', weightKg: '', heightCm: '', bloodGlucose: '' })
+    setConsultation({ chiefComplaint: '', historyOfPresentIllness: '',
+      clinicalFindings: '', diagnosis: '', advice: '', followUpDate: '' })
+    loadQueue()
+  } catch(e) { console.error(e) }
+  finally { setSaving(false) }
+}}
                 disabled={saving}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl font-semibold disabled:opacity-50">
                 {saving ? 'Saving...' : '✅ Save & Complete Consultation'}

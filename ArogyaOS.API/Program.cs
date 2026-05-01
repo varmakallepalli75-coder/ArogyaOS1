@@ -20,6 +20,7 @@ builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IDepartmentService, 
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IAppointmentService, ArogyaOS.Infrastructure.Services.AppointmentService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IDashboardService, ArogyaOS.Infrastructure.Services.DashboardService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IBillingService, ArogyaOS.Infrastructure.Services.BillingService>();
+builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IOPDService, ArogyaOS.Infrastructure.Services.OPDService>();
 
 // ─── JWT Authentication ────────────────────────────────
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

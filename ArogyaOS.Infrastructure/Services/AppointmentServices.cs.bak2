@@ -16,8 +16,8 @@ public interface IAppointmentService
     Task<ApiResponse<PagedResponse<AppointmentResponse>>> GetAllAsync(
         Guid hospitalId, DateTime? date, Guid? doctorId, int page, int pageSize);
     Task<ApiResponse<AppointmentResponse>> UpdateStatusAsync(
-        Guid id, UpdateAppointmentStatusRequest request, Guid hospitalId);
     Task<ApiResponse<PagedResponse<AppointmentResponse>>> GetByPatientAsync(Guid patientId, Guid hospitalId, int page, int pageSize);
+        Guid id, UpdateAppointmentStatusRequest request, Guid hospitalId);
 }
 
 public class AppointmentService : IAppointmentService
@@ -177,10 +177,10 @@ public class AppointmentService : IAppointmentService
             Id = a.Id,
             AppointmentNumber = a.AppointmentNumber,
             PatientId = a.PatientId,
+            DoctorId = a.DoctorId,
             PatientName = a.Patient != null ? a.Patient.FullName : "",
             PatientUHID = a.Patient?.UHID ?? "",
             PatientMobile = a.Patient?.MobileNumber ?? "",
-            DoctorId = a.DoctorId,
             DoctorName = a.Doctor != null ? a.Doctor.FullName : "",
             DepartmentName = a.Doctor?.Department?.Name ?? "",
             AppointmentDateTime = a.AppointmentDateTime,
@@ -241,49 +241,6 @@ public class AppointmentService : IAppointmentService
                 CreatedAt = appointment.CreatedAt
             }, "Status updated successfully");
     }
-
-    public async Task<ApiResponse<PagedResponse<AppointmentResponse>>> GetByPatientAsync(
-        Guid patientId, Guid hospitalId, int page, int pageSize)
-    {
-        var query = _context.Appointments
-            .Include(a => a.Patient)
-            .Include(a => a.Doctor).ThenInclude(d => d.Department)
-            .Where(a => a.HospitalId == hospitalId && a.PatientId == patientId)
-            .OrderByDescending(a => a.AppointmentDateTime);
-
-        var total = await query.CountAsync();
-        var items = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(a => new AppointmentResponse
-            {
-                Id = a.Id,
-                AppointmentNumber = a.AppointmentNumber,
-                PatientId = a.PatientId,
-                DoctorId = a.DoctorId,
-                PatientName = a.Patient != null ? a.Patient.FullName : "",
-                PatientUHID = a.Patient != null ? a.Patient.UHID : "",
-                PatientMobile = a.Patient != null ? a.Patient.MobileNumber : "",
-                DoctorName = a.Doctor != null ? a.Doctor.FullName : "",
-                DepartmentName = a.Doctor != null && a.Doctor.Department != null ? a.Doctor.Department.Name : "",
-                AppointmentDateTime = a.AppointmentDateTime,
-                Status = a.Status.ToString(),
-                ConsultationType = a.ConsultationType.ToString(),
-                Priority = a.Priority.ToString(),
-                ChiefComplaint = a.ChiefComplaint,
-                TokenNumber = a.TokenNumber,
-                IsWalkIn = a.IsWalkIn,
-                CancelledReason = a.CancelledReason,
-                CreatedAt = a.CreatedAt
-            }).ToListAsync();
-
-        return ApiResponse<PagedResponse<AppointmentResponse>>.Ok(
-            new PagedResponse<AppointmentResponse>
-            {
-                Items = items,
-                TotalCount = total,
-                Page = page,
-                PageSize = pageSize
-            });
-    }
 }
+// ─── PATIENT SCOPED ───────────────────────────────────────────────────────────
+// intentional blank - replaced below

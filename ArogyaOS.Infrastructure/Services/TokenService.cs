@@ -82,13 +82,13 @@ public class TokenService : ITokenService
     };
 
     var key = new SymmetricSecurityKey(
-        Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        Encoding.UTF8.GetBytes((_config.GetSection("JwtSettings")["SecretKey"])!));
     var creds = new SigningCredentials(
         key, SecurityAlgorithms.HmacSha256);
 
     var token = new JwtSecurityToken(
-        issuer: _config["Jwt:Issuer"],
-        audience: _config["Jwt:Audience"],
+        issuer: (_config.GetSection("JwtSettings")["Issuer"]),
+        audience: (_config.GetSection("JwtSettings")["Audience"]),
         claims: claims,
         expires: DateTime.UtcNow.AddDays(1),
         signingCredentials: creds

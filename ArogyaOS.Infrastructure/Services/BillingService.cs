@@ -13,6 +13,7 @@ public interface IBillingService
     Task<ApiResponse<PagedResponse<BillListResponse>>> GetAllAsync(Guid hospitalId, DateTime? date, string? search, int page, int pageSize);
     Task<ApiResponse<BillResponse>> GetByIdAsync(Guid id, Guid hospitalId);
     Task<ApiResponse<BillResponse>> RecordPaymentAsync(RecordPaymentRequest request, Guid hospitalId);
+    Task<ApiResponse<PagedResponse<BillListResponse>>> GetByPatientAsync(Guid patientId, Guid hospitalId, int page, int pageSize);
 }
 
 public class BillingService : IBillingService
@@ -241,4 +242,42 @@ public class BillingService : IBillingService
         }).ToList(),
         CreatedAt = b.CreatedAt
     };
+
+
+    public async Task<ApiResponse<PagedResponse<BillListResponse>>> GetByPatientAsync(
+        Guid patientId, Guid hospitalId, int page, int pageSize)
+    {
+        var query = _context.Bills
+            .Include(b => b.Patient)
+            .Where(b => b.HospitalId == hospitalId && b.PatientId == patientId)
+            .OrderByDescending(b => b.CreatedAt);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(b => new BillListResponse
+            {
+                Id = b.Id,
+                BillNumber = b.BillNumber,
+                PatientName = b.Patient != null ? b.Patient.FullName : "",
+                PatientUHID = b.Patient != null ? b.Patient.UHID : "",
+                TotalAmount = b.TotalAmount,
+                PaidAmount = b.PaidAmount,
+                DueAmount = b.DueAmount,
+                PaymentStatus = b.PaidAmount >= b.TotalAmount ? "Paid" : b.PaidAmount > 0 ? "PartiallyPaid" : "Pending",
+                BillType = b.PatientType.ToString(),
+                CreatedAt = b.CreatedAt
+            }).ToListAsync();
+
+        return ApiResponse<PagedResponse<BillListResponse>>.Ok(
+            new PagedResponse<BillListResponse>
+            {
+                Items = items,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            });
+    }
+
 }

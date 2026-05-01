@@ -5,10 +5,10 @@ public class AppointmentResponse
     public Guid Id { get; set; }
     public string AppointmentNumber { get; set; } = string.Empty;
     public Guid PatientId { get; set; }
+    public Guid DoctorId { get; set; }
     public string PatientName { get; set; } = string.Empty;
     public string PatientUHID { get; set; } = string.Empty;
     public string PatientMobile { get; set; } = string.Empty;
-    public Guid DoctorId { get; set; }
     public string DoctorName { get; set; } = string.Empty;
     public string DepartmentName { get; set; } = string.Empty;
     public DateTime AppointmentDateTime { get; set; }
@@ -26,6 +26,7 @@ public class TodayAppointmentResponse
 {
     public Guid Id { get; set; }
     public Guid PatientId { get; set; }
+    public Guid DoctorId { get; set; }
     public string AppointmentNumber { get; set; } = string.Empty;
     public string TokenNumber { get; set; } = string.Empty;
     public string PatientName { get; set; } = string.Empty;
