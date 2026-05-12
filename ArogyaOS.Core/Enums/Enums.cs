@@ -68,10 +68,18 @@ public enum SubscriptionPlan     { Trial, Starter, Growth, Enterprise, Custom }
 public enum SubscriptionStatus   { Active, Expired, Suspended, Cancelled, Trial }
 public enum HospitalStatus       { Pending, Active, Suspended, Deactivated }
 
+// ─── Hospital Specialty ────────────────────────────────
+public enum HospitalCategory     { General, MultiSpeciality, Dental, Eye,
+                                   Maternity, Orthopedic, Pediatric, Cardiac,
+                                   Oncology, ENT, Dermatology, Psychiatric,
+                                   Dialysis, Trauma, Rehabilitation }
+
 // ─── System ────────────────────────────────────────────
 public enum NotificationType     { Appointment, Lab, Billing, Discharge,
                                    Emergency, Pharmacy, System, LowStock }
 public enum ReferralType         { Internal, External }
+public enum ReferralStatus       { Sent, Viewed, Accepted, Declined, Completed, Cancelled }
+public enum ReferralUrgency      { Routine, Urgent, Emergency }
 public enum AuditAction          { Create, Update, Delete, Login, Logout, Print, Export }
 public enum DocumentType         { Consent, Discharge, Lab, Radiology,
                                    Prescription, Invoice, Other }

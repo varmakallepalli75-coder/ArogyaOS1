@@ -1,6 +1,7 @@
 using ArogyaOS.Core.DTOs.Request;
 using ArogyaOS.Core.DTOs.Response;
 using ArogyaOS.Infrastructure.Services;
+using ArogyaOS.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace ArogyaOS.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[SubscriptionCheck]
 public class PatientController : ControllerBase
 {
     private readonly IPatientService _patientService;

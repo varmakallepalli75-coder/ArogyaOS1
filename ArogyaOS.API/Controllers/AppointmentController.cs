@@ -1,5 +1,6 @@
 using ArogyaOS.Core.DTOs.Request;
 using ArogyaOS.Infrastructure.Services;
+using ArogyaOS.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace ArogyaOS.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[SubscriptionCheck]
 public class AppointmentController : ControllerBase
 {
     private readonly IAppointmentService _appointmentService;
@@ -36,6 +38,28 @@ public class AppointmentController : ControllerBase
         var hospitalId = GetHospitalId();
         if (hospitalId == Guid.Empty) return Unauthorized();
         var result = await _appointmentService.GetAllAsync(hospitalId, date, doctorId, page, pageSize);
+        return Ok(result);
+    }
+
+    [HttpGet("patient/{patientId}")]
+    public async Task<IActionResult> GetByPatient(
+        Guid patientId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var hospitalId = GetHospitalId();
+        if (hospitalId == Guid.Empty) return Unauthorized();
+        var result = await _appointmentService.GetByPatientAsync(patientId, hospitalId, page, pageSize);
+        return Ok(result);
+    }
+
+    [HttpGet("my/journey")]
+    public async Task<IActionResult> GetMyJourney()
+    {
+        var hospitalId = GetHospitalId();
+        var patientId = GetPatientId();
+        if (patientId == Guid.Empty) return Unauthorized();
+        var result = await _appointmentService.GetTodayJourneyAsync(patientId, hospitalId);
         return Ok(result);
     }
 
@@ -69,6 +93,27 @@ public class AppointmentController : ControllerBase
     {
         var hospitalId = GetHospitalId();
         var result = await _appointmentService.UpdateStatusAsync(id, request, hospitalId);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPost("{id}/collect-fee")]
+    public async Task<IActionResult> CollectFee(Guid id, [FromBody] CollectFeeRequest request)
+    {
+        var hospitalId = GetHospitalId();
+        if (hospitalId == Guid.Empty) return Unauthorized();
+        var result = await _appointmentService.CollectFeeAsync(id, request.PaymentMode, hospitalId);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPost("{id}/checkin")]
+    public async Task<IActionResult> CheckIn(Guid id)
+    {
+        var hospitalId = GetHospitalId();
+        if (hospitalId == Guid.Empty) return Unauthorized();
+        var result = await _appointmentService.UpdateStatusAsync(id,
+            new ArogyaOS.Core.DTOs.Request.UpdateAppointmentStatusRequest { Status = 1 }, hospitalId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }

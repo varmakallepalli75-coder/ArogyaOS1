@@ -31,6 +31,11 @@ public class Subscription : BaseEntity
     public bool HasHR { get; set; } = false;
     public bool HasReports { get; set; } = false;
     public bool HasPatientPortal { get; set; } = false;
+    public bool HasOT { get; set; } = false;
+    public bool HasBloodBank { get; set; } = false;
+    public bool HasAmbulance { get; set; } = false;
+    public bool HasTeleConsult { get; set; } = false;
+    public bool HasInventory { get; set; } = false;
     public bool HasAPI { get; set; } = false;
     public int MaxUsers { get; set; } = 5;
     public int MaxPatients { get; set; } = 500;

@@ -25,3 +25,10 @@ public class UpdateAppointmentStatusRequest
     public int Status { get; set; }
     public string? CancelledReason { get; set; }
 }
+
+public class CollectFeeRequest
+{
+    [Required]
+    public string PaymentMode { get; set; } = "Cash";
+    public decimal? FeeOverride { get; set; }
+}

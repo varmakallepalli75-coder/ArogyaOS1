@@ -32,6 +32,7 @@ public class Hospital : BaseEntity
     // ─── Hospital Details ──────────────────────────────
     public int TotalBeds { get; set; }
     public string? HospitalType { get; set; }         // Government, Private, Trust
+    public HospitalCategory? Category { get; set; }  // Dental, Eye, General, etc.
     public string? Specialities { get; set; }         // Comma separated
 
     // ─── Admin Contact ─────────────────────────────────

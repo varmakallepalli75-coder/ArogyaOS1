@@ -20,3 +20,12 @@
 
 # Secrets
 **/appsettings.Production.json
+
+# Secrets — never commit these
+.env
+appsettings.Production.json
+appsettings.Secrets.json
+nginx/certs/
+
+# Backups
+scripts/backup/*.sql.gz

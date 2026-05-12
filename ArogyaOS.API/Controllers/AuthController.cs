@@ -3,6 +3,7 @@ using ArogyaOS.Core.DTOs.Response;
 using ArogyaOS.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ArogyaOS.API.Controllers;
 
@@ -16,6 +17,8 @@ public class AuthController : ControllerBase
     {
         _authService = authService;
     }
+
+    private string? UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     // ─── POST api/auth/login ───────────────────────────
     [HttpPost("login")]
@@ -74,6 +77,29 @@ public async Task<IActionResult> PatientLogin(
         if (!result.Success)
             return Unauthorized(result);
 
+        return Ok(result);
+    }
+
+    // ─── POST api/auth/logout ─────────────────────────
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        if (UserId == null) return Unauthorized();
+        var result = await _authService.LogoutAsync(UserId);
+        return Ok(result);
+    }
+
+    // ─── POST api/auth/change-password ────────────────
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (UserId == null) return Unauthorized();
+        var result = await _authService.ChangePasswordAsync(UserId, request);
+        if (!result.Success) return BadRequest(result);
         return Ok(result);
     }
 }

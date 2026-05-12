@@ -17,7 +17,12 @@ export default function Login() {
     try {
       const result = await login(email, password)
       if (result.success) {
-        navigate('/dashboard')
+        const role = result.data?.user?.role
+        if (role === 0 || role === 'SuperAdmin') {
+          navigate('/super-admin')
+        } else {
+          navigate('/dashboard')
+        }
       } else {
         setError(result.message || 'Login failed')
       }

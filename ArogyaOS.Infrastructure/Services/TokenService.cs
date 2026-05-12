@@ -38,6 +38,8 @@ public class TokenService : ITokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var isAdmin = user.Role == UserRole.HospitalAdmin || user.Role == UserRole.SuperAdmin;
+
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
@@ -48,6 +50,16 @@ public class TokenService : ITokenService
             new Claim("doctorId", user.DoctorId?.ToString() ?? ""),
             new Claim("staffId", user.StaffId?.ToString() ?? ""),
             new Claim("patientId", user.PatientId?.ToString() ?? ""),
+            new Claim("permPatients",     (isAdmin || user.PermPatients).ToString()),
+            new Claim("permAppointments", (isAdmin || user.PermAppointments).ToString()),
+            new Claim("permOPD",          (isAdmin || user.PermOPD).ToString()),
+            new Claim("permIPD",          (isAdmin || user.PermIPD).ToString()),
+            new Claim("permLab",          (isAdmin || user.PermLab).ToString()),
+            new Claim("permPharmacy",     (isAdmin || user.PermPharmacy).ToString()),
+            new Claim("permBilling",      (isAdmin || user.PermBilling).ToString()),
+            new Claim("permReports",      (isAdmin || user.PermReports).ToString()),
+            new Claim("permStaff",        (isAdmin || user.PermStaff).ToString()),
+            new Claim("isExternal",       user.IsExternal.ToString()),
         };
 
         var token = new JwtSecurityToken(

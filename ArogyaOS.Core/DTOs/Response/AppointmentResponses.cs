@@ -20,6 +20,10 @@ public class AppointmentResponse
     public bool IsWalkIn { get; set; }
     public string? CancelledReason { get; set; }
     public DateTime CreatedAt { get; set; }
+    public decimal ConsultationFee { get; set; }
+    public bool IsFeeCollected { get; set; }
+    public string? FeePaymentMode { get; set; }
+    public string? FeeReceiptNumber { get; set; }
 }
 
 public class TodayAppointmentResponse
@@ -40,4 +44,8 @@ public class TodayAppointmentResponse
     public string Status { get; set; } = string.Empty;
     public string? ChiefComplaint { get; set; }
     public bool IsWalkIn { get; set; }
+    public decimal ConsultationFee { get; set; }
+    public bool IsFeeCollected { get; set; }
+    public string? FeePaymentMode { get; set; }
+    public string? FeeReceiptNumber { get; set; }
 }

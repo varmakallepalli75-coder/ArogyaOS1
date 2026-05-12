@@ -25,5 +25,10 @@ export const appointmentService = {
       status, cancelledReason
     })
     return res.data
+  },
+
+  getByPatient: async (patientId, page = 1, pageSize = 20) => {
+    const res = await api.get(`/appointment/patient/${patientId}`, { params: { page, pageSize } })
+    return res.data
   }
 }

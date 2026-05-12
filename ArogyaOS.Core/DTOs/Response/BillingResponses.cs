@@ -21,6 +21,12 @@ public class BillResponse
     public decimal DueAmount { get; set; }
     public string PaymentStatus { get; set; } = string.Empty;
     public string PaymentMode { get; set; } = string.Empty;
+
+    // Advance deposit info (populated for IPD bills)
+    public decimal AdvanceDeposited { get; set; }
+    public decimal AdvanceAdjusted { get; set; }
+    public decimal AdvanceAvailable { get; set; }
+
     public string InsuranceType { get; set; } = string.Empty;
     public decimal InsuranceCoveredAmount { get; set; }
     public string? Notes { get; set; }

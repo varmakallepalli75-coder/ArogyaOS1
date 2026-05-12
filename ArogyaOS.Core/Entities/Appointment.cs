@@ -26,9 +26,22 @@ public class Appointment : BaseEntity
     public string? Notes { get; set; }
 
     // ─── Cancellation ──────────────────────────────────
-    public string? CancelledReason { get; set; }
+    // Journey Timestamps
+    public DateTime? CheckedInAt { get; set; }
+    public DateTime? ConsultationStartedAt { get; set; }
+    public DateTime? PrescriptionReadyAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+
+        public string? CancelledReason { get; set; }
     public DateTime? CancelledAt { get; set; }
     public string? CancelledBy { get; set; }
+
+    // ─── Consultation Fee ──────────────────────────────
+    public decimal ConsultationFee { get; set; }
+    public bool IsFeeCollected { get; set; } = false;
+    public string? FeePaymentMode { get; set; }        // Cash, Card, UPI
+    public string? FeeReceiptNumber { get; set; }
+    public DateTime? FeeCollectedAt { get; set; }
 
     // ─── Booking ───────────────────────────────────────
     public string? BookedBy { get; set; }

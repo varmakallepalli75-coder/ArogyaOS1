@@ -1,4 +1,5 @@
 using ArogyaOS.Infrastructure.Services;
+using ArogyaOS.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace ArogyaOS.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[SubscriptionCheck]
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;

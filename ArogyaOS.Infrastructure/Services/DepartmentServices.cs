@@ -105,10 +105,12 @@ public class DepartmentService : IDepartmentService
         FullName = $"Dr. {d.FirstName} {d.LastName}",
         Specialization = d.Specialization,
         Qualification = d.Qualification,
+        DepartmentId = d.DepartmentId,
         DepartmentName = d.Department != null ? d.Department.Name : "",
         ConsultationFee = d.ConsultationFee,
         IsAvailable = d.IsAvailable,
-        MobileNumber = d.MobileNumber
+        MobileNumber = d.MobileNumber,
+        ExperienceYears = d.ExperienceYears
     })
     .ToListAsync();
 

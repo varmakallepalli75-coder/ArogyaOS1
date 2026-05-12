@@ -284,25 +284,25 @@ export default function Patients() {
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Address *</label>
-                    <input required value={form.address} onChange={e => f('address', e.target.value)}
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Address</label>
+                    <input value={form.address} onChange={e => f('address', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">City *</label>
-                    <input required value={form.city} onChange={e => f('city', e.target.value)}
+                    <label className="block text-xs font-medium text-gray-600 mb-1">City</label>
+                    <input value={form.city} onChange={e => f('city', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">State *</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">State</label>
                     <select value={form.state} onChange={e => f('state', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                       {states.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">PIN Code *</label>
-                    <input required value={form.pinCode} onChange={e => f('pinCode', e.target.value)}
+                    <label className="block text-xs font-medium text-gray-600 mb-1">PIN Code</label>
+                    <input value={form.pinCode} onChange={e => f('pinCode', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -318,18 +318,18 @@ export default function Patients() {
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Emergency Contact</h4>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Name *</label>
-                    <input required value={form.emergencyContactName} onChange={e => f('emergencyContactName', e.target.value)}
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                    <input value={form.emergencyContactName} onChange={e => f('emergencyContactName', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Phone *</label>
-                    <input required value={form.emergencyContactPhone} onChange={e => f('emergencyContactPhone', e.target.value)}
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+                    <input value={form.emergencyContactPhone} onChange={e => f('emergencyContactPhone', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Relation *</label>
-                    <input required value={form.emergencyContactRelation} onChange={e => f('emergencyContactRelation', e.target.value)}
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Relation</label>
+                    <input value={form.emergencyContactRelation} onChange={e => f('emergencyContactRelation', e.target.value)}
                       placeholder="e.g. Wife, Son, Father"
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>

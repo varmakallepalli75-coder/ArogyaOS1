@@ -19,7 +19,13 @@ public interface IBillingService
 public class BillingService : IBillingService
 {
     private readonly AppDbContext _context;
-    public BillingService(AppDbContext context) { _context = context; }
+    private readonly IAuditService _audit;
+
+    public BillingService(AppDbContext context, IAuditService audit)
+    {
+        _context = context;
+        _audit = audit;
+    }
 
     public async Task<ApiResponse<BillResponse>> CreateBillAsync(CreateBillRequest request, Guid hospitalId)
     {
@@ -90,6 +96,10 @@ public class BillingService : IBillingService
         }
 
         await _context.SaveChangesAsync();
+
+        await _audit.LogAsync(hospitalId, "Bill", bill.Id.ToString(), AuditAction.Create,
+            $"Bill {billNumber} created for patient {patient.FullName} — ₹{totalAmount:F2}");
+
         return await GetByIdAsync(bill.Id, hospitalId);
     }
 
@@ -156,7 +166,20 @@ public class BillingService : IBillingService
         if (bill == null)
             return ApiResponse<BillResponse>.Fail("Bill not found");
 
-        return ApiResponse<BillResponse>.Ok(MapBill(bill));
+        var response = MapBill(bill);
+
+        // Attach deposit summary for IPD bills
+        if (bill.AdmissionId.HasValue)
+        {
+            var deposits = await _context.PatientDeposits
+                .Where(d => d.HospitalId == hospitalId && d.AdmissionId == bill.AdmissionId && !d.IsDeleted)
+                .ToListAsync();
+            response.AdvanceDeposited  = deposits.Sum(d => d.Amount);
+            response.AdvanceAdjusted   = deposits.Sum(d => d.AdjustedAmount);
+            response.AdvanceAvailable  = response.AdvanceDeposited - response.AdvanceAdjusted - deposits.Sum(d => d.RefundedAmount);
+        }
+
+        return ApiResponse<BillResponse>.Ok(response);
     }
 
     public async Task<ApiResponse<BillResponse>> RecordPaymentAsync(
@@ -196,6 +219,10 @@ public class BillingService : IBillingService
         bill.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        await _audit.LogAsync(hospitalId, "Bill", bill.Id.ToString(), AuditAction.Update,
+            $"Payment of ₹{amount:N2} recorded via {(PaymentMode)request.PaymentMode} for bill {bill.BillNumber}");
+
         return ApiResponse<BillResponse>.Ok(MapBill(bill), "Payment recorded successfully!");
     }
 

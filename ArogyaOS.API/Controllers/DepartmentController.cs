@@ -1,5 +1,6 @@
 using ArogyaOS.Core.DTOs.Request;
 using ArogyaOS.Infrastructure.Services;
+using ArogyaOS.API.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace ArogyaOS.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
+[SubscriptionCheck]
 public class DepartmentController : ControllerBase
 {
     private readonly IDepartmentService _departmentService;
@@ -74,6 +76,20 @@ public class DepartmentController : ControllerBase
         if (hospitalId == Guid.Empty) return Unauthorized();
         var result = await _departmentService
             .CreateDoctorAsync(request, hospitalId);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    // ─── PUT api/department/doctors/{id} ─────────────
+    [HttpPut("doctors/{id}")]
+    public async Task<IActionResult> UpdateDoctor(
+        Guid id, [FromBody] UpdateDoctorRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var hospitalId = GetHospitalId();
+        if (hospitalId == Guid.Empty) return Unauthorized();
+        var result = await _departmentService
+            .UpdateDoctorAsync(id, request, hospitalId);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }

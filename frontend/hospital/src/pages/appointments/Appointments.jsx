@@ -394,7 +394,7 @@ export default function Appointments() {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     <option value="">Select doctor</option>
                     {doctors
-  .filter(d => !form.departmentId || d.departmentName === departments.find(dept => dept.id === form.departmentId)?.name)
+  .filter(d => !form.departmentId || d.departmentId === form.departmentId)
   .map(d => (
                         <option key={d.id} value={d.id}>
                           {d.fullName} — Rs {d.consultationFee}

@@ -1,25 +1,68 @@
 import api from './api'
 
+// activeRole lives in sessionStorage (per-tab) so two tabs can be logged in as different roles
+// tokens live in localStorage (keyed by role) so they survive page refresh within the same tab
+const getRole = () => sessionStorage.getItem('activeRole')
+
 export const authService = {
   login: async (email, password) => {
     const res = await api.post('/auth/login', { email, password })
     if (res.data.success) {
-      localStorage.setItem('accessToken', res.data.data.accessToken)
-      localStorage.setItem('refreshToken', res.data.data.refreshToken)
-      localStorage.setItem('user', JSON.stringify(res.data.data.user))
+      const user  = res.data.data.user
+      const isSA  = user.role === 'SuperAdmin' || user.role === 0
+      const role  = isSA ? 'superadmin' : 'hospital'
+      sessionStorage.setItem('activeRole', role)
+      if (isSA) {
+        localStorage.setItem('sa_accessToken', res.data.data.accessToken)
+        localStorage.setItem('sa_user', JSON.stringify(user))
+      } else {
+        localStorage.setItem('accessToken', res.data.data.accessToken)
+        localStorage.setItem('refreshToken', res.data.data.refreshToken)
+        localStorage.setItem('user', JSON.stringify(user))
+      }
     }
     return res.data
   },
 
-  logout: () => {
-    localStorage.clear()
+  logout: async () => {
+    try { await api.post('/auth/logout') } catch { /* ignore */ }
+    const role = getRole()
+    if (role === 'superadmin') {
+      localStorage.removeItem('sa_accessToken')
+      localStorage.removeItem('sa_user')
+    } else {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('user')
+    }
+    sessionStorage.removeItem('activeRole')
     window.location.href = '/login'
   },
 
-  getUser: () => {
-    const user = localStorage.getItem('user')
-    return user ? JSON.parse(user) : null
+  changePassword: async (currentPassword, newPassword) => {
+    const res = await api.post('/auth/change-password', { currentPassword, newPassword })
+    return res.data
   },
 
-  isLoggedIn: () => !!localStorage.getItem('accessToken')
+  getUser: () => {
+    const role = getRole()
+    const raw  = role === 'superadmin'
+      ? localStorage.getItem('sa_user')
+      : localStorage.getItem('user')
+    return raw ? JSON.parse(raw) : null
+  },
+
+  isLoggedIn: () => {
+    const role = getRole()
+    return !!(role === 'superadmin'
+      ? localStorage.getItem('sa_accessToken')
+      : localStorage.getItem('accessToken'))
+  },
+
+  getToken: () => {
+    const role = getRole()
+    return role === 'superadmin'
+      ? localStorage.getItem('sa_accessToken')
+      : localStorage.getItem('accessToken')
+  }
 }

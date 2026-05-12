@@ -14,6 +14,8 @@ public interface IAuthService
     Task<ApiResponse<RegisterHospitalResponse>> RegisterHospitalAsync(RegisterHospitalRequest request);
     Task<ApiResponse<LoginResponse>> RefreshTokenAsync(string refreshToken);
     Task<ApiResponse<LoginResponse>> PatientLoginAsync(PatientLoginRequest request);
+    Task<ApiResponse<bool>> LogoutAsync(string userId);
+    Task<ApiResponse<bool>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
 }
 
 public class AuthService : IAuthService
@@ -21,15 +23,18 @@ public class AuthService : IAuthService
     private readonly UserManager<AppUser> _userManager;
     private readonly AppDbContext _context;
     private readonly ITokenService _tokenService;
+    private readonly IAuditService _audit;
 
     public AuthService(
         UserManager<AppUser> userManager,
         AppDbContext context,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IAuditService audit)
     {
         _userManager = userManager;
         _context = context;
         _tokenService = tokenService;
+        _audit = audit;
     }
 
     public async Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request)
@@ -52,9 +57,11 @@ public class AuthService : IAuthService
 
         // ─── Check Hospital Status ─────────────────────
         string? hospitalName = null;
+        Subscription? subscription = null;
         if (user.HospitalId.HasValue)
         {
             var hospital = await _context.Hospitals
+                .Include(h => h.Subscription)
                 .FirstOrDefaultAsync(h => h.Id == user.HospitalId);
 
             if (hospital == null || hospital.Status == HospitalStatus.Deactivated)
@@ -66,6 +73,7 @@ public class AuthService : IAuthService
                     "Hospital account is suspended. Contact ArogyaOS support.");
 
             hospitalName = hospital.Name;
+            subscription = hospital.Subscription;
         }
 
         // ─── Generate Tokens ───────────────────────────
@@ -77,6 +85,10 @@ public class AuthService : IAuthService
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         user.LastLoginAt = DateTime.UtcNow;
         await _userManager.UpdateAsync(user);
+
+        await _audit.LogAsync(user.HospitalId, "AppUser", user.Id, AuditAction.Login,
+            $"{user.FullName} logged in ({user.Role})",
+            performedByOverride: user.Email ?? user.FullName);
 
         var expiryMinutes = 480;
         return ApiResponse<LoginResponse>.Ok(new LoginResponse
@@ -95,7 +107,30 @@ public class AuthService : IAuthService
                 DoctorId = user.DoctorId,
                 StaffId = user.StaffId,
                 PatientId = user.PatientId,
-                ProfilePhotoUrl = user.ProfilePhotoUrl
+                ProfilePhotoUrl = user.ProfilePhotoUrl,
+                HasOPD = subscription?.HasOPD ?? true,
+                HasIPD = subscription?.HasIPD ?? false,
+                HasLab = subscription?.HasLab ?? false,
+                HasPharmacy = subscription?.HasPharmacy ?? false,
+                HasRadiology = subscription?.HasRadiology ?? false,
+                HasBilling = subscription?.HasBilling ?? true,
+                HasHR = subscription?.HasHR ?? false,
+                HasReports = subscription?.HasReports ?? false,
+                HasPatientPortal = subscription?.HasPatientPortal ?? false,
+                HasOT = subscription?.HasOT ?? false,
+                HasBloodBank = subscription?.HasBloodBank ?? false,
+                HasAmbulance = subscription?.HasAmbulance ?? false,
+                HasTeleConsult = subscription?.HasTeleConsult ?? false,
+                HasInventory = subscription?.HasInventory ?? false,
+                PermPatients     = user.Role == UserRole.HospitalAdmin || user.PermPatients,
+                PermAppointments = user.Role == UserRole.HospitalAdmin || user.PermAppointments,
+                PermOPD          = user.Role == UserRole.HospitalAdmin || user.PermOPD,
+                PermIPD          = user.Role == UserRole.HospitalAdmin || user.PermIPD,
+                PermLab          = user.Role == UserRole.HospitalAdmin || user.PermLab,
+                PermPharmacy     = user.Role == UserRole.HospitalAdmin || user.PermPharmacy,
+                PermBilling      = user.Role == UserRole.HospitalAdmin || user.PermBilling,
+                PermReports      = user.Role == UserRole.HospitalAdmin || user.PermReports,
+                PermStaff        = user.Role == UserRole.HospitalAdmin || user.PermStaff,
             }
         }, "Login successful");
     }
@@ -314,5 +349,35 @@ public class AuthService : IAuthService
                 PatientId = patient.Id
             }
         }, "Login successful");
+    }
+
+    public async Task<ApiResponse<bool>> LogoutAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return ApiResponse<bool>.Ok(true); // already gone, treat as success
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpiry = null;
+        await _userManager.UpdateAsync(user);
+
+        return ApiResponse<bool>.Ok(true, "Logged out successfully.");
+    }
+
+    public async Task<ApiResponse<bool>> ChangePasswordAsync(string userId, ChangePasswordRequest request)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return ApiResponse<bool>.Fail("User not found.");
+
+        var result = await _userManager.ChangePasswordAsync(
+            user, request.CurrentPassword, request.NewPassword);
+
+        if (!result.Succeeded)
+            return ApiResponse<bool>.Fail(
+                "Failed to change password.",
+                result.Errors.Select(e => e.Description).ToList());
+
+        return ApiResponse<bool>.Ok(true, "Password changed successfully.");
     }
 }

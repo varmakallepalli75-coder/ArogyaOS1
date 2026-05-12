@@ -28,11 +28,11 @@ public class Patient : BaseEntity
     public string? Email { get; set; }
 
     // ─── Address ───────────────────────────────────────
-    public string Address { get; set; } = string.Empty;
-    public string City { get; set; } = string.Empty;
-    public string District { get; set; } = string.Empty;
-    public string State { get; set; } = string.Empty;
-    public string PinCode { get; set; } = string.Empty;
+    public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? District { get; set; }
+    public string? State { get; set; }
+    public string? PinCode { get; set; }
 
     // ─── Government IDs ────────────────────────────────
     public string? AadhaarNumber { get; set; }
@@ -40,9 +40,9 @@ public class Patient : BaseEntity
     public string? PANNumber { get; set; }
 
     // ─── Emergency Contact ─────────────────────────────
-    public string EmergencyContactName { get; set; } = string.Empty;
-    public string EmergencyContactPhone { get; set; } = string.Empty;
-    public string EmergencyContactRelation { get; set; } = string.Empty;
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public string? EmergencyContactRelation { get; set; }
 
     // ─── Insurance ─────────────────────────────────────
     public InsuranceType InsuranceType { get; set; } = InsuranceType.None;

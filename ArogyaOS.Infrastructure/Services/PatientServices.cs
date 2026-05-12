@@ -1,6 +1,7 @@
 using ArogyaOS.Core.DTOs.Request;
 using ArogyaOS.Core.DTOs.Response;
 using ArogyaOS.Core.Entities;
+using ArogyaOS.Core.Enums;
 using ArogyaOS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,10 +23,12 @@ public interface IPatientService
 public class PatientService : IPatientService
 {
     private readonly AppDbContext _context;
+    private readonly IAuditService _audit;
 
-    public PatientService(AppDbContext context)
+    public PatientService(AppDbContext context, IAuditService audit)
     {
         _context = context;
+        _audit = audit;
     }
 
     public async Task<ApiResponse<PagedResponse<PatientListResponse>>> GetAllAsync(
@@ -145,6 +148,9 @@ public class PatientService : IPatientService
         _context.Patients.Add(patient);
         await _context.SaveChangesAsync();
 
+        await _audit.LogAsync(hospitalId, "Patient", patient.Id.ToString(), AuditAction.Create,
+            $"Registered patient {patient.FullName} (UHID: {uhid})");
+
         return ApiResponse<PatientResponse>.Ok(
             MapToResponse(patient),
             $"Patient registered successfully! UHID: {uhid}");
@@ -190,6 +196,9 @@ public class PatientService : IPatientService
         patient.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        await _audit.LogAsync(hospitalId, "Patient", patient.Id.ToString(), AuditAction.Update,
+            $"Updated patient record for {patient.FullName} (UHID: {patient.UHID})");
 
         return ApiResponse<PatientResponse>.Ok(
             MapToResponse(patient), "Patient updated successfully");

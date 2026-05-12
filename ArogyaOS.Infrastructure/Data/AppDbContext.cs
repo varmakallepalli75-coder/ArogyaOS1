@@ -11,8 +11,22 @@ public class AppDbContext : IdentityDbContext<AppUser>
 
     // ─── SaaS ──────────────────────────────────────────
     public DbSet<Hospital> Hospitals => Set<Hospital>();
+    public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<SubscriptionPayment> SubscriptionPayments => Set<SubscriptionPayment>();
+
+    // ─── Support ───────────────────────────────────────
+    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+    public DbSet<SupportMessage> SupportMessages => Set<SupportMessage>();
+
+    // ─── Announcements ─────────────────────────────────
+    public DbSet<Announcement> Announcements => Set<Announcement>();
+
+    // ─── Platform Settings ──────────────────────────────
+    public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
+
+    // ─── Referrals ─────────────────────────────────────
+    public DbSet<PatientReferral> PatientReferrals => Set<PatientReferral>();
 
     // ─── Patient ───────────────────────────────────────
     public DbSet<Patient> Patients => Set<Patient>();
@@ -57,6 +71,16 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Bill> Bills => Set<Bill>();
     public DbSet<BillItem> BillItems => Set<BillItem>();
     public DbSet<Payment> Payments => Set<Payment>();
+
+    // ─── Push Notifications ────────────────────────────
+    public DbSet<PatientPushSubscription> PatientPushSubscriptions => Set<PatientPushSubscription>();
+
+    // ─── Deposits ──────────────────────────────────────
+    public DbSet<PatientDeposit> PatientDeposits => Set<PatientDeposit>();
+
+    // ─── Operation Theatre ─────────────────────────────
+    public DbSet<OTRoom> OTRooms => Set<OTRoom>();
+    public DbSet<OTSchedule> OTSchedules => Set<OTSchedule>();
 
     // ─── Staff ─────────────────────────────────────────
     public DbSet<Staff> Staff => Set<Staff>();

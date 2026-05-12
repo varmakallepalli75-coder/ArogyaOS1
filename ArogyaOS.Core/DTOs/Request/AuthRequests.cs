@@ -33,6 +33,16 @@ public class RegisterHospitalRequest
     public string? GSTNumber { get; set; }
     public int TotalBeds { get; set; }
     public string? HospitalType { get; set; }
+    public string? Category { get; set; }
+    public bool? HasOPD { get; set; }
+    public bool? HasIPD { get; set; }
+    public bool? HasLab { get; set; }
+    public bool? HasPharmacy { get; set; }
+    public bool? HasRadiology { get; set; }
+    public bool? HasPatientPortal { get; set; }
+    public bool? HasHR { get; set; }
+    public bool? HasReports { get; set; }
+    public List<HospitalServiceItem>? Services { get; set; }
     [Required]
     public string AdminFirstName { get; set; } = string.Empty;
     [Required]
@@ -62,6 +72,12 @@ public class ChangePasswordRequest
     [MinLength(8)]
     public string NewPassword { get; set; } = string.Empty;
 }
+public class HospitalServiceItem
+{
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+}
+
 public class PatientLoginRequest
 {
     [Required]
@@ -69,4 +85,12 @@ public class PatientLoginRequest
     [Required]
     public string HospitalCode { get; set; } = string.Empty;
     public string? DateOfBirth { get; set; }
+}
+
+
+public class PushSubscribeRequest
+{
+    public string Endpoint { get; set; } = string.Empty;
+    public string P256dh   { get; set; } = string.Empty;
+    public string Auth     { get; set; } = string.Empty;
 }

@@ -219,6 +219,42 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.ToTable("AdmissionVitals");
                 });
 
+            modelBuilder.Entity("ArogyaOS.Core.Entities.Announcement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("ArogyaOS.Core.Entities.Appointment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -244,8 +280,20 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Property<string>("CancelledReason")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("CheckedInAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("ChiefComplaint")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal>("ConsultationFee")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("ConsultationStartedAt")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("ConsultationType")
                         .HasColumnType("integer");
@@ -268,10 +316,22 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Property<Guid>("DoctorId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("FeeCollectedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FeePaymentMode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FeeReceiptNumber")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("HospitalId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeeCollected")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsOnline")
@@ -285,6 +345,9 @@ namespace ArogyaOS.Infrastructure.Migrations
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("PrescriptionReadyAt")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
@@ -312,6 +375,49 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Action")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("HospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OldValues")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerformedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("ArogyaOS.Core.Entities.Bed", b =>
@@ -889,6 +995,9 @@ namespace ArogyaOS.Infrastructure.Migrations
 
                     b.Property<string>("AlternatePhone")
                         .HasColumnType("text");
+
+                    b.Property<int?>("Category")
+                        .HasColumnType("integer");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -1608,6 +1717,176 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.ToTable("OPDVisits");
                 });
 
+            modelBuilder.Entity("ArogyaOS.Core.Entities.OTRoom", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("HospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HospitalId");
+
+                    b.ToTable("OTRooms");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.OTSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActualEndTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("ActualStartTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("AdmissionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AnesthesiaAssessmentDone")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("AnesthesiaType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("AnesthetistId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssistantSurgeons")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("BloodGroupConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ConsentSigned")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Diagnosis")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("FastingConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("HospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("InvestigationsReviewed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OTRoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PostOpNotes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreOpNotes")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ScheduledDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ScrubNurses")
+                        .HasColumnType("text");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SurgeonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SurgeryType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SurgicalNotes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdmissionId");
+
+                    b.HasIndex("AnesthetistId");
+
+                    b.HasIndex("HospitalId");
+
+                    b.HasIndex("OTRoomId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("SurgeonId");
+
+                    b.ToTable("OTSchedules");
+                });
+
             modelBuilder.Entity("ArogyaOS.Core.Entities.Patient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1621,7 +1900,6 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("AlternateMobile")
@@ -1640,7 +1918,6 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -1662,7 +1939,6 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("District")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ESICNumber")
@@ -1672,15 +1948,12 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmergencyContactName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("EmergencyContactPhone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("EmergencyContactRelation")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FamilyHistory")
@@ -1744,14 +2017,12 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PinCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ProfilePhotoUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("State")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UHID")
@@ -1780,6 +2051,222 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Patients");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PatientDeposit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AdjustedAgainstBillId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("AdjustedAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("AdjustedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("AdmissionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChequeNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CollectedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DepositDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("HospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAdjusted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsRefunded")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PaymentMode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReceiptNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("RefundMode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RefundNotes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RefundTransactionId")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("RefundedAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("RefundedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("RefundedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdmissionId");
+
+                    b.HasIndex("HospitalId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("PatientDeposits");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PatientPushSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Auth")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("HospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("P256dh")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("PatientPushSubscriptions");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PatientReferral", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("AttachedReports")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClinicalNotes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeclineReason")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("FromHospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OutcomeNotes")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PatientConsent")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PatientSnapshot")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ReceivedPatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReceivingDoctorName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ReferredAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ReferringDoctorName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ToHospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Urgency")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromHospitalId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("ToHospitalId");
+
+                    b.ToTable("PatientReferrals");
                 });
 
             modelBuilder.Entity("ArogyaOS.Core.Entities.Payment", b =>
@@ -2009,6 +2496,27 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.HasIndex("PharmacyOrderId");
 
                     b.ToTable("PharmacyOrderItems");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PlatformSetting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("PlatformSettings");
                 });
 
             modelBuilder.Entity("ArogyaOS.Core.Entities.Prescription", b =>
@@ -2607,7 +3115,13 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Property<bool>("HasAPI")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("HasAmbulance")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("HasBilling")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasBloodBank")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("HasHR")
@@ -2616,10 +3130,16 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Property<bool>("HasIPD")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("HasInventory")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("HasLab")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("HasOPD")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasOT")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("HasPatientPortal")
@@ -2632,6 +3152,9 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("HasReports")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasTeleConsult")
                         .HasColumnType("boolean");
 
                     b.Property<Guid>("HospitalId")
@@ -2748,6 +3271,123 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.ToTable("SubscriptionPayments");
                 });
 
+            modelBuilder.Entity("ArogyaOS.Core.Entities.SupportMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFromSupport")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SenderUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("SupportMessages");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.SupportTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("HospitalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RaisedByName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RaisedByUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TicketNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HospitalId");
+
+                    b.ToTable("SupportTickets");
+                });
+
             modelBuilder.Entity("ArogyaOS.Core.Entities.Ward", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2828,6 +3468,9 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<string>("Designation")
+                        .HasColumnType("text");
+
                     b.Property<Guid?>("DoctorId")
                         .HasColumnType("uuid");
 
@@ -2846,6 +3489,9 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsExternal")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastLoginAt")
@@ -2874,6 +3520,33 @@ namespace ArogyaOS.Infrastructure.Migrations
 
                     b.Property<Guid?>("PatientId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("PermAppointments")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermBilling")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermIPD")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermLab")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermOPD")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermPatients")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermPharmacy")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermReports")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PermStaff")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
@@ -3406,6 +4079,64 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("ArogyaOS.Core.Entities.OTRoom", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.Hospital", "Hospital")
+                        .WithMany()
+                        .HasForeignKey("HospitalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hospital");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.OTSchedule", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.Admission", "Admission")
+                        .WithMany()
+                        .HasForeignKey("AdmissionId");
+
+                    b.HasOne("ArogyaOS.Core.Entities.Doctor", "Anesthetist")
+                        .WithMany()
+                        .HasForeignKey("AnesthetistId");
+
+                    b.HasOne("ArogyaOS.Core.Entities.Hospital", "Hospital")
+                        .WithMany()
+                        .HasForeignKey("HospitalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArogyaOS.Core.Entities.OTRoom", "OTRoom")
+                        .WithMany("Schedules")
+                        .HasForeignKey("OTRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArogyaOS.Core.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArogyaOS.Core.Entities.Doctor", "Surgeon")
+                        .WithMany()
+                        .HasForeignKey("SurgeonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admission");
+
+                    b.Navigation("Anesthetist");
+
+                    b.Navigation("Hospital");
+
+                    b.Navigation("OTRoom");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Surgeon");
+                });
+
             modelBuilder.Entity("ArogyaOS.Core.Entities.Patient", b =>
                 {
                     b.HasOne("ArogyaOS.Core.Entities.Hospital", "Hospital")
@@ -3415,6 +4146,69 @@ namespace ArogyaOS.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Hospital");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PatientDeposit", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.Admission", "Admission")
+                        .WithMany()
+                        .HasForeignKey("AdmissionId");
+
+                    b.HasOne("ArogyaOS.Core.Entities.Hospital", "Hospital")
+                        .WithMany()
+                        .HasForeignKey("HospitalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArogyaOS.Core.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admission");
+
+                    b.Navigation("Hospital");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PatientPushSubscription", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.PatientReferral", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.Hospital", "FromHospital")
+                        .WithMany()
+                        .HasForeignKey("FromHospitalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArogyaOS.Core.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ArogyaOS.Core.Entities.Hospital", "ToHospital")
+                        .WithMany()
+                        .HasForeignKey("ToHospitalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FromHospital");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("ToHospital");
                 });
 
             modelBuilder.Entity("ArogyaOS.Core.Entities.Payment", b =>
@@ -3629,6 +4423,28 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Navigation("Subscription");
                 });
 
+            modelBuilder.Entity("ArogyaOS.Core.Entities.SupportMessage", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.SupportTicket", "Ticket")
+                        .WithMany("Messages")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.SupportTicket", b =>
+                {
+                    b.HasOne("ArogyaOS.Core.Entities.Hospital", "Hospital")
+                        .WithMany()
+                        .HasForeignKey("HospitalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hospital");
+                });
+
             modelBuilder.Entity("ArogyaOS.Core.Entities.Ward", b =>
                 {
                     b.HasOne("ArogyaOS.Core.Entities.Department", "Department")
@@ -3795,6 +4611,11 @@ namespace ArogyaOS.Infrastructure.Migrations
                     b.Navigation("Prescription");
                 });
 
+            modelBuilder.Entity("ArogyaOS.Core.Entities.OTRoom", b =>
+                {
+                    b.Navigation("Schedules");
+                });
+
             modelBuilder.Entity("ArogyaOS.Core.Entities.Patient", b =>
                 {
                     b.Navigation("Admissions");
@@ -3832,6 +4653,11 @@ namespace ArogyaOS.Infrastructure.Migrations
             modelBuilder.Entity("ArogyaOS.Core.Entities.Subscription", b =>
                 {
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("ArogyaOS.Core.Entities.SupportTicket", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("ArogyaOS.Core.Entities.Ward", b =>

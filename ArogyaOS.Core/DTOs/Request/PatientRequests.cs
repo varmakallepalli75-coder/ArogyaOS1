@@ -25,27 +25,20 @@ public class CreatePatientRequest
     public string? Email { get; set; }
 
     // ─── Address ───────────────────────────────────────
-    [Required]
-    public string Address { get; set; } = string.Empty;
-    [Required]
-    public string City { get; set; } = string.Empty;
+    public string? Address { get; set; }
+    public string? City { get; set; }
     public string? District { get; set; }
-    [Required]
-    public string State { get; set; } = string.Empty;
-    [Required]
-    public string PinCode { get; set; } = string.Empty;
+    public string? State { get; set; }
+    public string? PinCode { get; set; }
 
     // ─── Government IDs ────────────────────────────────
     public string? AadhaarNumber { get; set; }
     public string? ABHAId { get; set; }
 
     // ─── Emergency Contact ─────────────────────────────
-    [Required]
-    public string EmergencyContactName { get; set; } = string.Empty;
-    [Required]
-    public string EmergencyContactPhone { get; set; } = string.Empty;
-    [Required]
-    public string EmergencyContactRelation { get; set; } = string.Empty;
+    public string? EmergencyContactName { get; set; }
+    public string? EmergencyContactPhone { get; set; }
+    public string? EmergencyContactRelation { get; set; }
 
     // ─── Insurance ─────────────────────────────────────
     public InsuranceType InsuranceType { get; set; } = InsuranceType.None;
