@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
 
 export default function Prescriptions() {
@@ -28,8 +28,17 @@ export default function Prescriptions() {
       <div className="bg-emerald-600 text-white px-4 pt-8 pb-6">
         <button onClick={() => navigate('/')} className="text-emerald-200 text-sm mb-2">← Back</button>
         <h1 className="text-xl font-bold">My Prescriptions</h1>
-        <p className="text-emerald-200 text-xs mt-0.5">{visits.length} visit{visits.length !== 1 ? 's' : ''}</p>
+        <p className="text-emerald-200 text-xs mt-0.5">{visits.length} visit{visits.length !== 1 ? 's' : ''} from this hospital</p>
       </div>
+
+      {/* Cross-hospital prompt */}
+      <Link to="/login" className="mx-4 mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+        <span className="text-2xl">🏥</span>
+        <div>
+          <p className="text-sm font-semibold text-blue-800">Visited other hospitals?</p>
+          <p className="text-xs text-blue-600">Login with just mobile + DOB to see your complete prescription history across all hospitals →</p>
+        </div>
+      </Link>
 
       <div className="px-4 mt-4 space-y-3">
         {loading ? (

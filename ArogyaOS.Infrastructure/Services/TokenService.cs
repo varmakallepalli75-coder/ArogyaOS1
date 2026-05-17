@@ -16,6 +16,7 @@ public interface ITokenService
     string GenerateAccessToken(AppUser user);
     string GenerateRefreshToken();
     string GeneratePatientToken(Patient patient, Hospital hospital);
+    string GenerateUnifiedPatientToken(string mobileNumber, string fullName, List<(Patient patient, Hospital hospital)> records);
 }
 
 public class TokenService : ITokenService
@@ -108,4 +109,36 @@ public class TokenService : ITokenService
 
     return new JwtSecurityTokenHandler().WriteToken(token);
 }
+
+    public string GenerateUnifiedPatientToken(string mobileNumber, string fullName, List<(Patient patient, Hospital hospital)> records)
+    {
+        var linkedPatientIds = string.Join("|", records.Select(r => r.patient.Id.ToString()));
+        var linkedHospitalIds = string.Join("|", records.Select(r => r.hospital.Id.ToString()));
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, mobileNumber),
+            new Claim(ClaimTypes.Email, mobileNumber),
+            new Claim(ClaimTypes.Name, fullName),
+            new Claim("role", "Patient"),
+            new Claim("mobileNumber", mobileNumber),
+            new Claim("isUnified", "true"),
+            new Claim("linkedPatientIds", linkedPatientIds),
+            new Claim("linkedHospitalIds", linkedHospitalIds)
+        };
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes((_config.GetSection("JwtSettings")["SecretKey"])!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _config.GetSection("JwtSettings")["Issuer"],
+            audience: _config.GetSection("JwtSettings")["Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddDays(1),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 }

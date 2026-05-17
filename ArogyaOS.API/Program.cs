@@ -46,6 +46,7 @@ builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IAlertService,      
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.ISupportService,          ArogyaOS.Infrastructure.Services.SupportService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IOTService,               ArogyaOS.Infrastructure.Services.OTService>();
 builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IDepositService,           ArogyaOS.Infrastructure.Services.DepositService>();
+builder.Services.AddScoped<ArogyaOS.Infrastructure.Services.IHealthRecordsService,    ArogyaOS.Infrastructure.Services.HealthRecordsService>();
 builder.Services.AddHostedService<ArogyaOS.Infrastructure.Services.MedicineReminderJob>();
 builder.Services.AddHttpContextAccessor();
 

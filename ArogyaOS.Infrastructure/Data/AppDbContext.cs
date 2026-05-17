@@ -78,6 +78,9 @@ public class AppDbContext : IdentityDbContext<AppUser>
     // ─── Deposits ──────────────────────────────────────
     public DbSet<PatientDeposit> PatientDeposits => Set<PatientDeposit>();
 
+    // ─── Patient Health Records (cross-hospital) ───────
+    public DbSet<PatientDocument> PatientDocuments => Set<PatientDocument>();
+
     // ─── Operation Theatre ─────────────────────────────
     public DbSet<OTRoom> OTRooms => Set<OTRoom>();
     public DbSet<OTSchedule> OTSchedules => Set<OTSchedule>();

@@ -1,6 +1,7 @@
 using ArogyaOS.Core.DTOs.Request;
 using ArogyaOS.Core.DTOs.Response;
 using ArogyaOS.Core.Entities;
+using ArogyaOS.Core.Entities;
 using ArogyaOS.Core.Enums;
 using ArogyaOS.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +15,7 @@ public interface IAuthService
     Task<ApiResponse<RegisterHospitalResponse>> RegisterHospitalAsync(RegisterHospitalRequest request);
     Task<ApiResponse<LoginResponse>> RefreshTokenAsync(string refreshToken);
     Task<ApiResponse<LoginResponse>> PatientLoginAsync(PatientLoginRequest request);
+    Task<ApiResponse<UnifiedPatientResponse>> UnifiedPatientLoginAsync(UnifiedPatientLoginRequest request);
     Task<ApiResponse<bool>> LogoutAsync(string userId);
     Task<ApiResponse<bool>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
 }
@@ -349,6 +351,51 @@ public class AuthService : IAuthService
                 PatientId = patient.Id
             }
         }, "Login successful");
+    }
+
+    public async Task<ApiResponse<UnifiedPatientResponse>> UnifiedPatientLoginAsync(
+        UnifiedPatientLoginRequest request)
+    {
+        if (!DateTime.TryParse(request.DateOfBirth, out var dob))
+            return ApiResponse<UnifiedPatientResponse>.Fail("Invalid date of birth format.");
+
+        // Find all patients across ALL hospitals matching mobile + DOB
+        var patients = await _context.Patients
+            .Include(p => p.Hospital)
+            .Where(p => p.MobileNumber == request.MobileNumber
+                     && p.DateOfBirth.Date == dob.Date)
+            .ToListAsync();
+
+        if (!patients.Any())
+            return ApiResponse<UnifiedPatientResponse>.Fail(
+                "No records found. Please check your mobile number and date of birth.");
+
+        var fullName = patients.First().FullName;
+        var records = patients
+            .Select(p => (patient: p, hospital: p.Hospital!))
+            .ToList();
+
+        var token = _tokenService.GenerateUnifiedPatientToken(
+            request.MobileNumber, fullName, records);
+
+        var linkedHospitals = patients.Select(p => new LinkedHospitalInfo
+        {
+            HospitalId = p.HospitalId,
+            HospitalCode = p.Hospital!.HospitalCode,
+            HospitalName = p.Hospital.Name,
+            City = p.Hospital.City ?? "",
+            PatientId = p.Id,
+            UHID = p.UHID
+        }).ToList();
+
+        return ApiResponse<UnifiedPatientResponse>.Ok(new UnifiedPatientResponse
+        {
+            AccessToken = token,
+            ExpiresAt = DateTime.UtcNow.AddDays(1),
+            FullName = fullName,
+            MobileNumber = request.MobileNumber,
+            LinkedHospitals = linkedHospitals
+        }, $"Found records from {linkedHospitals.Count} hospital(s).");
     }
 
     public async Task<ApiResponse<bool>> LogoutAsync(string userId)

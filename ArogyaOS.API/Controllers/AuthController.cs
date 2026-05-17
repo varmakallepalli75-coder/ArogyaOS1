@@ -52,16 +52,26 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
     // ─── POST api/auth/patient-login ──────────────────
-[HttpPost("patient-login")]
-[AllowAnonymous]
-public async Task<IActionResult> PatientLogin(
-    [FromBody] PatientLoginRequest request)
-{
-    if (!ModelState.IsValid) return BadRequest(ModelState);
-    var result = await _authService.PatientLoginAsync(request);
-    if (!result.Success) return BadRequest(result);
-    return Ok(result);
-}
+    [HttpPost("patient-login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> PatientLogin([FromBody] PatientLoginRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.PatientLoginAsync(request);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    // ─── POST api/auth/patient-unified-login ──────────
+    [HttpPost("patient-unified-login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> PatientUnifiedLogin([FromBody] UnifiedPatientLoginRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.UnifiedPatientLoginAsync(request);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
 
     // ─── POST api/auth/refresh-token ──────────────────
     [HttpPost("refresh-token")]
