@@ -1,6 +1,6 @@
 {
-  "name": "ArogyaOS Patient Portal",
-  "short_name": "ArogyaOS",
+  "name": "MedCareAxis Patient Portal",
+  "short_name": "MedCareAxis",
   "description": "View your appointments, prescriptions and bills",
   "start_url": "/",
   "id": "/",

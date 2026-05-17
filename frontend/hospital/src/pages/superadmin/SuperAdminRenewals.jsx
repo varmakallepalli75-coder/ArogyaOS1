@@ -130,7 +130,7 @@ export default function SuperAdminRenewals() {
                           className="flex-1 py-2 text-xs font-semibold bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                           Manage
                         </button>
-                        <a href={`mailto:${r.adminEmail}?subject=Subscription Renewal - ${r.name}&body=Dear Admin,%0D%0A%0D%0AYour ArogyaOS subscription (${r.plan} plan) expires on ${fmtDate(r.subscriptionEnd)}.%0D%0A%0D%0APlease renew to continue uninterrupted service.%0D%0A%0D%0ARegards,%0D%0AArogyaOS Team`}
+                        <a href={`mailto:${r.adminEmail}?subject=Subscription Renewal - ${r.name}&body=Dear Admin,%0D%0A%0D%0AYour MedCareAxis subscription (${r.plan} plan) expires on ${fmtDate(r.subscriptionEnd)}.%0D%0A%0D%0APlease renew to continue uninterrupted service.%0D%0A%0D%0ARegards,%0D%0AMedCareAxis Team`}
                           className="flex-1 py-2 text-xs font-semibold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors text-center">
                           Email
                         </a>

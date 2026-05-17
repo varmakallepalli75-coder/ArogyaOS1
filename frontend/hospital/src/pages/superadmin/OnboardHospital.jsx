@@ -145,7 +145,7 @@ export default function OnboardHospital() {
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
         <div className="text-5xl mb-4">🎉</div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Hospital Onboarded!</h2>
-        <p className="text-gray-500 mb-6">The hospital has been successfully registered on ArogyaOS.</p>
+        <p className="text-gray-500 mb-6">The hospital has been successfully registered on MedCareAxis.</p>
         <div className="bg-emerald-50 rounded-xl p-4 mb-6 text-left space-y-2">
           {[
             ['Hospital Code', success.hospitalCode],
@@ -178,7 +178,7 @@ export default function OnboardHospital() {
   const allCatServices = CATEGORY_SERVICES[form.category] || []
 
   return (
-    <SuperAdminLayout title="Onboard New Hospital" subtitle="Register a new hospital on ArogyaOS">
+    <SuperAdminLayout title="Onboard New Hospital" subtitle="Register a new hospital on MedCareAxis">
       <div className="max-w-2xl mx-auto">
         {/* Progress */}
         <div className="flex items-center mb-8">

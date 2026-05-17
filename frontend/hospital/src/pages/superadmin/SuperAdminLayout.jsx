@@ -37,7 +37,7 @@ export default function SuperAdminLayout({ children, title, subtitle }) {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-white text-lg">A</div>
             <div>
-              <div className="text-white font-bold text-sm">ArogyaOS</div>
+              <div className="text-white font-bold text-sm">MedCareAxis</div>
               <div className="text-emerald-400 text-xs font-medium">Super Admin</div>
             </div>
           </div>

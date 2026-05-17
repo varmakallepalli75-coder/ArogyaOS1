@@ -171,7 +171,7 @@ export default function SuperAdminSupport() {
                         : 'bg-blue-50 border border-blue-100'
                     }`}>
                       <div className={`text-xs font-semibold mb-1 ${msg.isFromSupport ? 'text-emerald-700' : 'text-blue-700'}`}>
-                        {msg.isFromSupport ? '🛡 ArogyaOS Support' : `🏥 ${msg.senderName}`}
+                        {msg.isFromSupport ? '🛡 MedCareAxis Support' : `🏥 ${msg.senderName}`}
                       </div>
                       <div className="text-sm text-gray-800 whitespace-pre-wrap">{msg.body}</div>
                       <div className="text-xs text-gray-400 mt-1">{fmt(msg.createdAt)}</div>

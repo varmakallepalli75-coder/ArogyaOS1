@@ -42,7 +42,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-600 rounded-2xl mb-4">
             <span className="text-white text-2xl font-bold">✚</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">ArogyaOS</h1>
+          <h1 className="text-3xl font-bold text-gray-900">MedCareAxis</h1>
           <p className="text-gray-500 mt-1">Hospital Management System</p>
         </div>
 
@@ -98,7 +98,7 @@ export default function Login() {
 
           <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-xs text-gray-400 text-center">
-              Powered by ArogyaOS · Made for Indian Hospitals 🇮🇳
+              Powered by MedCareAxis · Made for Indian Hospitals 🇮🇳
             </p>
           </div>
         </div>

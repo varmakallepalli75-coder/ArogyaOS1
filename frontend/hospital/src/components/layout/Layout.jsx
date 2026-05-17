@@ -195,7 +195,7 @@ export default function Layout({ children }) {
             </div>
             {sidebarOpen && (
               <div>
-                <div className="text-white font-bold text-sm">ArogyaOS</div>
+                <div className="text-white font-bold text-sm">MedCareAxis</div>
                 <div className="text-emerald-400 text-xs truncate max-w-[120px]">
                   {user?.hospitalName || 'Hospital'}
                 </div>
@@ -270,7 +270,7 @@ export default function Layout({ children }) {
               ☰
             </button>
             <h1 className="text-gray-800 font-semibold">
-              {navItems.find(n => n.path === location.pathname)?.label || 'ArogyaOS'}
+              {navItems.find(n => n.path === location.pathname)?.label || 'MedCareAxis'}
             </h1>
           </div>
           <div className="flex items-center gap-3">

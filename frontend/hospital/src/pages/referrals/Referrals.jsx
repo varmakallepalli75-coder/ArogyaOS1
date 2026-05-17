@@ -280,7 +280,7 @@ export default function Referrals() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Referrals</h1>
-        <p className="text-gray-500 text-sm mt-1">Cross-hospital patient referrals within the ArogyaOS network</p>
+        <p className="text-gray-500 text-sm mt-1">Cross-hospital patient referrals within the MedCareAxis network</p>
       </div>
 
       <div className="border-b border-gray-200">

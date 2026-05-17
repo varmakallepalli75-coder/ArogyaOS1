@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arogyaos-v2';
+const CACHE_NAME = 'medcareaxis-v2';
 const urlsToCache = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
@@ -20,11 +20,11 @@ self.addEventListener('fetch', e => {
 
 // ─── Push Notifications ───────────────────────────────────
 self.addEventListener('push', e => {
-  let data = { title: 'ArogyaOS', body: 'You have a new notification', url: '/' };
+  let data = { title: 'MedCareAxis', body: 'You have a new notification', url: '/' };
   try { data = JSON.parse(e.data?.text() || '{}'); } catch {}
 
   e.waitUntil(
-    self.registration.showNotification(data.title || 'ArogyaOS', {
+    self.registration.showNotification(data.title || 'MedCareAxis', {
       body: data.body,
       icon: '/icon-192.png',
       badge: '/icon-192.png',

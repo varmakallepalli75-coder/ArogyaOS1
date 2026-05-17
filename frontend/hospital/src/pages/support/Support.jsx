@@ -176,7 +176,7 @@ export default function Support() {
                         : 'bg-blue-600 text-white'
                     }`}>
                       <div className={`text-xs font-semibold mb-1 ${msg.isFromSupport ? 'text-emerald-700' : 'text-blue-200'}`}>
-                        {msg.isFromSupport ? '🛡 ArogyaOS Support' : msg.senderName}
+                        {msg.isFromSupport ? '🛡 MedCareAxis Support' : msg.senderName}
                       </div>
                       <div className={`text-sm whitespace-pre-wrap ${msg.isFromSupport ? 'text-gray-800' : 'text-white'}`}>
                         {msg.body}

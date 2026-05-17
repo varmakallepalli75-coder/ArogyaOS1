@@ -56,7 +56,7 @@ export default function Login() {
           <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white text-2xl">🏥</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">ArogyaOS</h1>
+          <h1 className="text-2xl font-bold text-gray-900">MedCareAxis</h1>
           <p className="text-gray-500 text-sm mt-1">Patient Portal</p>
         </div>
 
@@ -106,7 +106,7 @@ export default function Login() {
                       required
                       value={hospitalCode}
                       onChange={e => setHospitalCode(e.target.value.toUpperCase())}
-                      placeholder="e.g. ARG-HOS-0001"
+                      placeholder="e.g. MCA-HOS-0001"
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                     <p className="text-xs text-gray-400 mt-1">Get this from your hospital reception</p>
@@ -211,14 +211,14 @@ export default function Login() {
                 </form>
 
                 <div className="mt-4 p-3 bg-blue-50 rounded-xl text-xs text-blue-700">
-                  <strong>What you'll see:</strong> Prescriptions, visits, lab reports, and admissions from every ArogyaOS hospital you've been to — all in one place. You can also upload and store your own medical documents.
+                  <strong>What you'll see:</strong> Prescriptions, visits, lab reports, and admissions from every MedCareAxis hospital you've been to — all in one place. You can also upload and store your own medical documents.
                 </div>
               </>
             )}
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-4">Powered by ArogyaOS</p>
+        <p className="text-center text-xs text-gray-400 mt-4">Powered by MedCareAxis</p>
       </div>
     </div>
   )

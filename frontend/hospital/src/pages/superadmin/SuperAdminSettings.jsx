@@ -61,7 +61,7 @@ export default function SuperAdminSettings() {
   )
 
   return (
-    <SuperAdminLayout title="Platform Settings" subtitle="Global configuration for all hospitals on ArogyaOS">
+    <SuperAdminLayout title="Platform Settings" subtitle="Global configuration for all hospitals on MedCareAxis">
       <div className="max-w-2xl space-y-6">
 
         {/* Maintenance Mode */}
@@ -105,7 +105,7 @@ export default function SuperAdminSettings() {
             <input
               value={form?.supportEmail || ''}
               onChange={e => set('supportEmail', e.target.value)}
-              placeholder="support@arogyaos.com"
+              placeholder="support@medcareaxis.com"
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </Field>
@@ -126,7 +126,7 @@ export default function SuperAdminSettings() {
             <input
               value={form?.termsUrl || ''}
               onChange={e => set('termsUrl', e.target.value)}
-              placeholder="https://arogyaos.com/terms"
+              placeholder="https://medcareaxis.com/terms"
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </Field>
@@ -134,7 +134,7 @@ export default function SuperAdminSettings() {
             <input
               value={form?.privacyUrl || ''}
               onChange={e => set('privacyUrl', e.target.value)}
-              placeholder="https://arogyaos.com/privacy"
+              placeholder="https://medcareaxis.com/privacy"
               className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </Field>

@@ -5,14 +5,14 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-arogyaos}
-      POSTGRES_USER: ${POSTGRES_USER:-arogyaos_user}
+      POSTGRES_DB: ${POSTGRES_DB:-medcareaxis}
+      POSTGRES_USER: ${POSTGRES_USER:-medcareaxis_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./scripts/backup:/backups
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arogyaos_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medcareaxis_user}"]
       interval: 10s
       timeout: 5s
       retries: 5

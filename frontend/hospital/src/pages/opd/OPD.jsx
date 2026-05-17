@@ -378,7 +378,7 @@ export default function OPD() {
       @media print { body { padding:5px; } }
     </style></head><body>
     <div class="header">
-      <div><div class="hospital-name">ArogyaOS Hospital</div><div style="font-size:12px;color:#6b7280;">Medical Centre</div></div>
+      <div><div class="hospital-name">MedCareAxis Hospital</div><div style="font-size:12px;color:#6b7280;">Medical Centre</div></div>
       <div style="text-align:right">
         <div style="font-size:12px;color:#6b7280;">Dr. ${apt?.doctorName || ''}</div>
         <div style="font-size:12px;color:#6b7280;">${apt?.departmentName || ''}</div>
@@ -739,7 +739,7 @@ export default function OPD() {
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-700">🤖 ArogyaOS AI Suggestions</h4>
+                  <h4 className="text-sm font-semibold text-gray-700">🤖 MedCareAxis AI Suggestions</h4>
                   <p className="text-xs text-gray-400 mt-0.5">AI-powered medicine suggestions based on patient profile</p>
                 </div>
                 <button onClick={getAISuggestions} disabled={aiLoading}
