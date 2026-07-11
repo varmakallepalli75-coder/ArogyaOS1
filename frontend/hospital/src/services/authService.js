@@ -1,4 +1,5 @@
 import api from './api'
+import { isSuperAdmin } from '@medcareaxis/shared/src/roles.js'
 
 // activeRole lives in sessionStorage (per-tab) so two tabs can be logged in as different roles
 // tokens live in localStorage (keyed by role) so they survive page refresh within the same tab
@@ -9,7 +10,7 @@ export const authService = {
     const res = await api.post('/auth/login', { email, password })
     if (res.data.success) {
       const user  = res.data.data.user
-      const isSA  = user.role === 'SuperAdmin' || user.role === 0
+      const isSA  = isSuperAdmin(user.role)
       const role  = isSA ? 'superadmin' : 'hospital'
       sessionStorage.setItem('activeRole', role)
       if (isSA) {

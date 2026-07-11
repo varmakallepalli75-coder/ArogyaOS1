@@ -1,3 +1,4 @@
+using MedCareAxis.API.Middleware;
 using MedCareAxis.Infrastructure;
 using MedCareAxis.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,14 +24,8 @@ builder.WebHost.UseSentry(o =>
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ─── Application Services ─────────────────────────────
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.ITokenService,        MedCareAxis.Infrastructure.Services.TokenService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IAuthService,         MedCareAxis.Infrastructure.Services.AuthService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IPatientService,      MedCareAxis.Infrastructure.Services.PatientService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IDepartmentService,   MedCareAxis.Infrastructure.Services.DepartmentService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IAppointmentService,  MedCareAxis.Infrastructure.Services.AppointmentService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IDashboardService,    MedCareAxis.Infrastructure.Services.DashboardService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IBillingService,      MedCareAxis.Infrastructure.Services.BillingService>();
-builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IOPDService,          MedCareAxis.Infrastructure.Services.OPDService>();
+// Note: ITokenService, IAuthService, IPatientService, IDepartmentService, IAppointmentService,
+// IDashboardService, IBillingService, IOPDService are already registered by AddInfrastructure() above.
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.ISuperAdminService,   MedCareAxis.Infrastructure.Services.SuperAdminService>();
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IPdfService,          MedCareAxis.Infrastructure.Services.PdfService>();
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IEmailService,        MedCareAxis.Infrastructure.Services.EmailService>();
@@ -49,8 +44,14 @@ builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IDepositService, 
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IHealthRecordsService,    MedCareAxis.Infrastructure.Services.HealthRecordsService>();
 builder.Services.AddHostedService<MedCareAxis.Infrastructure.Services.MedicineReminderJob>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 // ─── JWT Authentication ────────────────────────────────
+// Prevent the JWT handler from remapping short claim names (e.g. "role" → long URN)
+// so that RoleClaimType = "role" matches the claims in the token as-is.
+Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.DefaultInboundClaimTypeMap?.Clear();
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]!;
 
@@ -70,7 +71,9 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer              = jwtSettings["Issuer"],
         ValidAudience            = jwtSettings["Audience"],
         IssuerSigningKey         = new SymmetricSecurityKey(
-                                       Encoding.UTF8.GetBytes(secretKey))
+                                       Encoding.UTF8.GetBytes(secretKey)),
+        RoleClaimType            = "role",
+        NameClaimType            = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
     };
 });
 
@@ -84,17 +87,16 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 
 // ─── CORS ─────────────────────────────────────────────
+// A comma-separated string (not a JSON array) so appsettings.Development.json fully
+// overrides appsettings.json rather than merging by index (ASP.NET Core config arrays
+// merge per-element across providers, which would otherwise leak the prod origins into dev).
+var allowedOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? "")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("MedCareAxisPolicy", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://localhost:3002",
-                "http://localhost:3003",
-                "http://localhost:5173"
-            )
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -118,6 +120,7 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSentryTracing();
 app.UseCors("MedCareAxisPolicy");
 app.UseAuthentication();

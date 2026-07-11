@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class Admission : BaseEntity
+public class Admission : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -59,7 +60,7 @@ public class Admission : BaseEntity
     public Bill? Bill { get; set; }
 }
 
-public class AdmissionVitals : BaseEntity
+public class AdmissionVitals : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid AdmissionId { get; set; }

@@ -1,10 +1,11 @@
+using MedCareAxis.Core.Interfaces;
 namespace MedCareAxis.Core.Entities;
 
 public enum TicketCategory  { Technical, Billing, Feature, Training, Other }
 public enum TicketStatus    { Open, InProgress, Resolved, Closed }
 public enum TicketPriority  { Low, Medium, High, Critical }
 
-public class SupportTicket : BaseEntity
+public class SupportTicket : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public string TicketNumber { get; set; } = string.Empty;   // TKT-20260504-0001

@@ -1,6 +1,7 @@
+using MedCareAxis.Core.Interfaces;
 namespace MedCareAxis.Core.Entities;
 
-public class Department : BaseEntity
+public class Department : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }

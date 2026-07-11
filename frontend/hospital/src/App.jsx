@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { isSuperAdmin, isAdminRole } from '@medcareaxis/shared/src/roles.js'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/layout/Layout'
 import Login from './pages/auth/Login'
@@ -34,7 +35,7 @@ import SuperAdminSettings from './pages/superadmin/SuperAdminSettings'
 const SuperAdminRoute = ({ children }) => {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  if (user.role !== 0 && user.role !== 'SuperAdmin') return <Navigate to="/dashboard" replace />
+  if (!isSuperAdmin(user.role)) return <Navigate to="/dashboard" replace />
   return children
 }
 
@@ -43,16 +44,14 @@ const SuperAdminRoute = ({ children }) => {
 const ProtectedRoute = ({ children, perm }) => {
   const { user } = useAuth()
   if (!user) return <Navigate to="/login" replace />
-  const isAdmin = user.role === 0 || user.role === 1 ||
-    user.role === 'SuperAdmin' || user.role === 'HospitalAdmin'
-  if (perm && !isAdmin && !user[perm]) return <Navigate to="/dashboard" replace />
+  if (perm && !isAdminRole(user.role) && !user[perm]) return <Navigate to="/dashboard" replace />
   return <Layout>{children}</Layout>
 }
 
 const PublicRoute = ({ children }) => {
   const { user } = useAuth()
   if (user) {
-    if (user.role === 0 || user.role === 'SuperAdmin') return <Navigate to="/super-admin" replace />
+    if (isSuperAdmin(user.role)) return <Navigate to="/super-admin" replace />
     return <Navigate to="/dashboard" replace />
   }
   return children

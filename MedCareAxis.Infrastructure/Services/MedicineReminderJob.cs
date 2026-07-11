@@ -46,12 +46,40 @@ public class MedicineReminderJob : BackgroundService
         }
     }
 
+    // Arbitrary fixed key for a Postgres session advisory lock. Ensures only one
+    // running instance sends reminders per cycle if the API is ever scaled out.
+    private const long ReminderLockKey = 7264510983346127;
+
     private async Task CheckAndSendRemindersAsync(CancellationToken ct)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var pushService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
 
+        await context.Database.OpenConnectionAsync(ct);
+        try
+        {
+            var acquired = await context.Database
+                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0})", ReminderLockKey)
+                .FirstAsync(ct);
+
+            if (!acquired)
+            {
+                _logger.LogDebug("Another instance is already sending medicine reminders this cycle; skipping.");
+                return;
+            }
+
+            await SendDueRemindersAsync(context, pushService, ct);
+        }
+        finally
+        {
+            await context.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock({0})", new object?[] { ReminderLockKey }, ct);
+            await context.Database.CloseConnectionAsync();
+        }
+    }
+
+    private async Task SendDueRemindersAsync(AppDbContext context, IPushNotificationService pushService, CancellationToken ct)
+    {
         var now = DateTime.UtcNow.TimeOfDay;
 
         // Find which slot(s) are within ±5 minutes of now

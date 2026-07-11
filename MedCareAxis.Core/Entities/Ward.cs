@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class Ward : BaseEntity
+public class Ward : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -24,7 +25,7 @@ public class Ward : BaseEntity
         = new List<Bed>();
 }
 
-public class Bed : BaseEntity
+public class Bed : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }

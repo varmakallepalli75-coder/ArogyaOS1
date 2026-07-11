@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class PatientDeposit : BaseEntity
+public class PatientDeposit : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }

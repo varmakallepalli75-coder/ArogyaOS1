@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class Staff : BaseEntity
+public class Staff : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -64,7 +65,7 @@ public class Staff : BaseEntity
         = new List<StaffAttendance>();
 }
 
-public class StaffShift : BaseEntity
+public class StaffShift : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid StaffId { get; set; }
@@ -76,7 +77,7 @@ public class StaffShift : BaseEntity
     public Staff? Staff { get; set; }
 }
 
-public class StaffLeave : BaseEntity
+public class StaffLeave : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid StaffId { get; set; }
@@ -92,7 +93,7 @@ public class StaffLeave : BaseEntity
     public Staff? Staff { get; set; }
 }
 
-public class StaffAttendance : BaseEntity
+public class StaffAttendance : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid StaffId { get; set; }

@@ -1,23 +1,11 @@
-import axios from 'axios'
+import { createApiClient } from '@medcareaxis/shared/src/apiClient.js'
 
-const api = axios.create({ baseURL: '/api' })
-
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('patient_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
-
-api.interceptors.response.use(
-  res => res,
-  err => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('patient_token')
-      localStorage.removeItem('patient_user')
-      window.location.href = '/login'
-    }
-    return Promise.reject(err)
+const api = createApiClient({
+  getToken: () => localStorage.getItem('patient_token'),
+  onUnauthorized: () => {
+    localStorage.removeItem('patient_token')
+    localStorage.removeItem('patient_user')
   }
-)
+})
 
 export default api

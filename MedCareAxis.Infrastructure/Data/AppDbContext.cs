@@ -1,4 +1,6 @@
+using System.Reflection;
 using MedCareAxis.Core.Entities;
+using MedCareAxis.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +9,12 @@ namespace MedCareAxis.Infrastructure.Data;
 
 public class AppDbContext : IdentityDbContext<AppUser>
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    private readonly ICurrentTenantService _tenant;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentTenantService tenant) : base(options)
+    {
+        _tenant = tenant;
+    }
 
     // ─── SaaS ──────────────────────────────────────────
     public DbSet<Hospital> Hospitals => Set<Hospital>();
@@ -95,19 +102,31 @@ public class AppDbContext : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(builder);
 
-        // ─── Soft Delete Global Filter ──────────────────
-        builder.Entity<Hospital>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Patient>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Doctor>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Appointment>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<OPDVisit>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Admission>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Bill>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Prescription>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<LabOrder>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<PharmacyOrder>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Medicine>().HasQueryFilter(x => !x.IsDeleted);
-        builder.Entity<Staff>().HasQueryFilter(x => !x.IsDeleted);
+        // ─── Soft delete + tenant isolation global filters ──
+        // Every BaseEntity gets a soft-delete filter; entities that also implement
+        // ITenantEntity additionally get scoped to the current request's hospital.
+        // _tenant.HospitalId is null for SuperAdmin requests and non-HTTP contexts
+        // (background jobs, startup seeding), which intentionally bypasses tenant
+        // scoping while still respecting soft-delete.
+        var setTenantFilter = GetType().GetMethod(nameof(SetTenantQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var setSoftDeleteFilter = GetType().GetMethod(nameof(SetSoftDeleteQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+        foreach (var entityType in builder.Model.GetEntityTypes().ToList())
+        {
+            var clrType = entityType.ClrType;
+            if (!typeof(BaseEntity).IsAssignableFrom(clrType)) continue;
+
+            if (typeof(ITenantEntity).IsAssignableFrom(clrType))
+                setTenantFilter.MakeGenericMethod(clrType).Invoke(this, new object[] { builder });
+            else
+                setSoftDeleteFilter.MakeGenericMethod(clrType).Invoke(this, new object[] { builder });
+
+            // Free optimistic concurrency via Postgres' xmin system column — no migration needed.
+            builder.Entity(clrType).Property<uint>("xmin")
+                .HasColumnName("xmin")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
+        }
 
         // ─── Hospital ──────────────────────────────────
         builder.Entity<Hospital>(e =>
@@ -187,5 +206,18 @@ public class AppDbContext : IdentityDbContext<AppUser>
         builder.Entity<Doctor>().Ignore(x => x.FullName);
         builder.Entity<Staff>().Ignore(x => x.FullName);
         builder.Entity<MedicineBatch>().Ignore(x => x.IsExpired);
+    }
+
+    private void SetTenantQueryFilter<TEntity>(ModelBuilder builder)
+        where TEntity : BaseEntity, ITenantEntity
+    {
+        builder.Entity<TEntity>().HasQueryFilter(e =>
+            !e.IsDeleted && (_tenant.HospitalId == null || e.HospitalId == _tenant.HospitalId));
+    }
+
+    private void SetSoftDeleteQueryFilter<TEntity>(ModelBuilder builder)
+        where TEntity : BaseEntity
+    {
+        builder.Entity<TEntity>().HasQueryFilter(e => !e.IsDeleted);
     }
 }

@@ -1,3 +1,4 @@
+using MedCareAxis.API.Extensions;
 using MedCareAxis.API.Filters;
 using MedCareAxis.Core.DTOs.Request;
 using MedCareAxis.Core.Enums;
@@ -166,12 +167,7 @@ public class PharmacyController : ControllerBase
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
 
-    private Guid GetHospitalId()
-    {
-        var claim = User.Claims.FirstOrDefault(c => c.Type == "hospitalId");
-        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
-        return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
-    }
+    private Guid GetHospitalId() => User.GetHospitalId();
 
     private bool IsExternal() =>
         string.Equals(User.Claims.FirstOrDefault(c => c.Type == "isExternal")?.Value,

@@ -9,6 +9,9 @@ public class Hospital : BaseEntity
     public string Name { get; set; } = string.Empty;
     public string? Logo { get; set; }
     public string? Website { get; set; }
+    public string? FacebookUrl { get; set; }
+    public string? InstagramUrl { get; set; }
+    public string? LinkedInUrl { get; set; }
     public HospitalStatus Status { get; set; } = HospitalStatus.Pending;
 
     // ─── Contact ───────────────────────────────────────

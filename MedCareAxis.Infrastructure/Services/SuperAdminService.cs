@@ -390,6 +390,10 @@ public class SuperAdminService : ISuperAdminService
             AdminName = $"{request.AdminFirstName} {request.AdminLastName}",
             AdminEmail = request.AdminEmail,
             AdminPhone = request.AdminPhone,
+            Website = request.Website,
+            FacebookUrl = request.FacebookUrl,
+            InstagramUrl = request.InstagramUrl,
+            LinkedInUrl = request.LinkedInUrl,
             Status = HospitalStatus.Active
         };
 
@@ -410,9 +414,9 @@ public class SuperAdminService : ISuperAdminService
             EndDate = DateTime.UtcNow.AddDays(30),
             MonthlyAmount = request.Plan switch
             {
-                SubscriptionPlan.Starter => 2999,
-                SubscriptionPlan.Growth => 7999,
-                SubscriptionPlan.Enterprise => 19999,
+                SubscriptionPlan.Starter => 1999,
+                SubscriptionPlan.Growth => 4999,
+                SubscriptionPlan.Enterprise => 9999,
                 _ => 0
             },
             FinalAmount = 0,

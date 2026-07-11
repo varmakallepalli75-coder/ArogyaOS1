@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class Subscription : BaseEntity
+public class Subscription : BaseEntity, ITenantEntity
 {
     // ─── Plan Details ──────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -52,7 +53,7 @@ public class Subscription : BaseEntity
         = new List<SubscriptionPayment>();
 }
 
-public class SubscriptionPayment : BaseEntity
+public class SubscriptionPayment : BaseEntity, ITenantEntity
 {
     public Guid SubscriptionId { get; set; }
     public Guid HospitalId { get; set; }

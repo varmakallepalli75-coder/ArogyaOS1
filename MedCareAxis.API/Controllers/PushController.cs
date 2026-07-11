@@ -1,3 +1,4 @@
+using MedCareAxis.API.Extensions;
 using MedCareAxis.API.Filters;
 using MedCareAxis.Core.DTOs.Request;
 using MedCareAxis.Infrastructure.Services;
@@ -64,19 +65,9 @@ public class PushController : ControllerBase
         return Ok(new { success = true, message = "Broadcast sent." });
     }
 
-    private Guid GetPatientId()
-    {
-        var claim = User.Claims.FirstOrDefault(c => c.Type == "patientId");
-        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
-        return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
-    }
+    private Guid GetPatientId() => User.GetPatientId();
 
-    private Guid GetHospitalId()
-    {
-        var claim = User.Claims.FirstOrDefault(c => c.Type == "hospitalId");
-        if (claim == null || string.IsNullOrEmpty(claim.Value)) return Guid.Empty;
-        return Guid.TryParse(claim.Value, out var id) ? id : Guid.Empty;
-    }
+    private Guid GetHospitalId() => User.GetHospitalId();
 }
 
 public class UnsubscribeRequest { public string Endpoint { get; set; } = string.Empty; }

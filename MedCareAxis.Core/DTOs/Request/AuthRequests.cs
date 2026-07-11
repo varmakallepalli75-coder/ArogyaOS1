@@ -43,6 +43,10 @@ public class RegisterHospitalRequest
     public bool? HasHR { get; set; }
     public bool? HasReports { get; set; }
     public List<HospitalServiceItem>? Services { get; set; }
+    public string? Website { get; set; }
+    public string? FacebookUrl { get; set; }
+    public string? InstagramUrl { get; set; }
+    public string? LinkedInUrl { get; set; }
     [Required]
     public string AdminFirstName { get; set; } = string.Empty;
     [Required]

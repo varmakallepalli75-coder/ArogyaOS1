@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class OTRoom : BaseEntity
+public class OTRoom : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public string Name { get; set; } = string.Empty;        // e.g. "OT-1", "Main OT"
@@ -13,7 +14,7 @@ public class OTRoom : BaseEntity
     public ICollection<OTSchedule> Schedules { get; set; } = new List<OTSchedule>();
 }
 
-public class OTSchedule : BaseEntity
+public class OTSchedule : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
 

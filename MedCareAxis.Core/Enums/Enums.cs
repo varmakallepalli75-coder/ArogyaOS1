@@ -85,5 +85,5 @@ public enum DocumentType         { Consent, Discharge, Lab, Radiology,
                                    Prescription, Invoice, Other }
 public enum UserRole             { SuperAdmin, HospitalAdmin, Doctor, Nurse,
                                    Receptionist, Billing, Pharmacy, Lab,
-                                   Radiology, Patient }
+                                   Radiology, Patient, Manager }
                                    

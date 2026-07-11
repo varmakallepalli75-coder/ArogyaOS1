@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class Medicine : BaseEntity
+public class Medicine : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -39,7 +40,7 @@ public class Medicine : BaseEntity
         = new List<StockTransaction>();
 }
 
-public class MedicineBatch : BaseEntity
+public class MedicineBatch : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid MedicineId { get; set; }
@@ -56,7 +57,7 @@ public class MedicineBatch : BaseEntity
     public Medicine? Medicine { get; set; }
 }
 
-public class StockTransaction : BaseEntity
+public class StockTransaction : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid MedicineId { get; set; }
@@ -70,7 +71,7 @@ public class StockTransaction : BaseEntity
     public Medicine? Medicine { get; set; }
 }
 
-public class PharmacyOrder : BaseEntity
+public class PharmacyOrder : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }

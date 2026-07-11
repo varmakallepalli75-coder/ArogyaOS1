@@ -1,5 +1,6 @@
 <Solution>
-  <Project Path="ArogyaOS.API/ArogyaOS.API.csproj" />
-  <Project Path="ArogyaOS.Core/ArogyaOS.Core.csproj" />
-  <Project Path="ArogyaOS.Infrastructure/ArogyaOS.Infrastructure.csproj" />
+  <Project Path="MedCareAxis.API/MedCareAxis.API.csproj" />
+  <Project Path="MedCareAxis.Core/MedCareAxis.Core.csproj" />
+  <Project Path="MedCareAxis.Infrastructure/MedCareAxis.Infrastructure.csproj" />
+  <Project Path="MedCareAxis.Tests/MedCareAxis.Tests.csproj" />
 </Solution>

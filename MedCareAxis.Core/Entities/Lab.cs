@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class LabTest : BaseEntity
+public class LabTest : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -37,7 +38,7 @@ public class LabTestParameter : BaseEntity
     public LabTest? LabTest { get; set; }
 }
 
-public class LabOrder : BaseEntity
+public class LabOrder : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }

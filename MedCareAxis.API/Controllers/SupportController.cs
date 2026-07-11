@@ -1,3 +1,4 @@
+using MedCareAxis.API.Extensions;
 using MedCareAxis.API.Filters;
 using MedCareAxis.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -87,11 +88,7 @@ public class SupportController : ControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
-    private Guid GetHospitalId()
-    {
-        var claim = User.Claims.FirstOrDefault(c => c.Type == "hospitalId");
-        return Guid.TryParse(claim?.Value, out var id) ? id : Guid.Empty;
-    }
+    private Guid GetHospitalId() => User.GetHospitalId();
 
     private bool IsSuperAdmin()
     {

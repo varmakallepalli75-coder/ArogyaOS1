@@ -1,8 +1,9 @@
+using MedCareAxis.Core.Interfaces;
 using MedCareAxis.Core.Enums;
 
 namespace MedCareAxis.Core.Entities;
 
-public class Doctor : BaseEntity
+public class Doctor : BaseEntity, ITenantEntity
 {
     // ─── Tenant ────────────────────────────────────────
     public Guid HospitalId { get; set; }
@@ -54,7 +55,7 @@ public class Doctor : BaseEntity
         = new List<Prescription>();
 }
 
-public class DoctorSchedule : BaseEntity
+public class DoctorSchedule : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid DoctorId { get; set; }
@@ -67,7 +68,7 @@ public class DoctorSchedule : BaseEntity
     public Doctor? Doctor { get; set; }
 }
 
-public class DoctorLeave : BaseEntity
+public class DoctorLeave : BaseEntity, ITenantEntity
 {
     public Guid HospitalId { get; set; }
     public Guid DoctorId { get; set; }

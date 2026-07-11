@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore ArogyaOS.slnx
+
+      - name: Build
+        run: dotnet build ArogyaOS.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test MedCareAxis.Tests/MedCareAxis.Tests.csproj --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: '**/test-results.trx'
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install workspace dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build hospital app
+        working-directory: frontend/hospital
+        run: npm run build
+
+      - name: Build patient-portal app
+        working-directory: frontend/patient-portal
+        run: npm run build
