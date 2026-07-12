@@ -89,8 +89,45 @@ public class PatientLoginRequest
     [Required]
     public string HospitalCode { get; set; } = string.Empty;
     public string? DateOfBirth { get; set; }
+    [Required]
+    public string Code { get; set; } = string.Empty;
 }
 
+public class PatientOtpRequest
+{
+    [Required]
+    public string MobileNumber { get; set; } = string.Empty;
+    [Required]
+    public string HospitalCode { get; set; } = string.Empty;
+}
+
+public class ForgotPasswordRequest
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+}
+
+public class ResetPasswordRequest
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+    [Required]
+    public string Code { get; set; } = string.Empty;
+    [Required]
+    [MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
+}
+
+public class VerifyRegistrationOtpRequest
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+    [Required]
+    public string Code { get; set; } = string.Empty;
+}
 
 public class PushSubscribeRequest
 {

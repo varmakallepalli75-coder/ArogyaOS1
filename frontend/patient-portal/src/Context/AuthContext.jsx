@@ -9,9 +9,23 @@ export function AuthProvider({ children }) {
     return saved ? JSON.parse(saved) : null
   })
 
-  const login = async (mobileNumber, hospitalCode, dateOfBirth) => {
+  const requestOtp = async (mobileNumber, hospitalCode) => {
+    const res = await api.post('/auth/patient-login/request-otp', {
+      mobileNumber, hospitalCode
+    })
+    return { success: res.data.success, message: res.data.message }
+  }
+
+  const requestUnifiedOtp = async (mobileNumber) => {
+    const res = await api.post('/auth/patient-unified-login/request-otp', {
+      mobileNumber
+    })
+    return { success: res.data.success, message: res.data.message }
+  }
+
+  const login = async (mobileNumber, hospitalCode, dateOfBirth, code) => {
     const res = await api.post('/auth/patient-login', {
-      mobileNumber, hospitalCode, dateOfBirth
+      mobileNumber, hospitalCode, dateOfBirth, code
     })
     if (res.data.success) {
       const { accessToken, user: userData } = res.data.data
@@ -24,9 +38,9 @@ export function AuthProvider({ children }) {
     return { success: false, message: res.data.message }
   }
 
-  const unifiedLogin = async (mobileNumber, dateOfBirth) => {
+  const unifiedLogin = async (mobileNumber, dateOfBirth, code) => {
     const res = await api.post('/auth/patient-unified-login', {
-      mobileNumber, dateOfBirth
+      mobileNumber, dateOfBirth, code
     })
     if (res.data.success) {
       const { accessToken, fullName, linkedHospitals, expiresAt } = res.data.data
@@ -54,7 +68,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, unifiedLogin, logout }}>
+    <AuthContext.Provider value={{ user, login, unifiedLogin, requestOtp, requestUnifiedOtp, logout }}>
       {children}
     </AuthContext.Provider>
   )

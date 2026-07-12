@@ -8,6 +8,14 @@ public class UnifiedPatientLoginRequest
     public string MobileNumber { get; set; } = string.Empty;
     [Required]
     public string DateOfBirth { get; set; } = string.Empty;
+    [Required]
+    public string Code { get; set; } = string.Empty;
+}
+
+public class UnifiedPatientOtpRequest
+{
+    [Required]
+    public string MobileNumber { get; set; } = string.Empty;
 }
 
 public class UploadDocumentRequest

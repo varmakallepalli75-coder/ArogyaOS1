@@ -3,6 +3,7 @@ import { isSuperAdmin, isAdminRole } from '@medcareaxis/shared/src/roles.js'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/layout/Layout'
 import Login from './pages/auth/Login'
+import ForgotPassword from './pages/auth/ForgotPassword'
 import Dashboard from './pages/dashboard/Dashboard'
 import Patients from './pages/patients/Patients'
 import PatientProfile from './pages/patients/PatientProfile'
@@ -61,6 +62,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
 
       {/* Always accessible to any logged-in hospital user */}
       <Route path="/dashboard"   element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

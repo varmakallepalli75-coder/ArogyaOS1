@@ -23,10 +23,12 @@ public interface IHealthRecordsService
 public class HealthRecordsService : IHealthRecordsService
 {
     private readonly AppDbContext _context;
+    private readonly IFileStorageService _storage;
 
-    public HealthRecordsService(AppDbContext context)
+    public HealthRecordsService(AppDbContext context, IFileStorageService storage)
     {
         _context = context;
+        _storage = storage;
     }
 
     public async Task<ApiResponse<List<LinkedHospitalInfo>>> GetLinkedHospitalsAsync(
@@ -260,12 +262,18 @@ public class HealthRecordsService : IHealthRecordsService
     public async Task<ApiResponse<PatientDocumentResponse>> UploadDocumentAsync(
         string mobileNumber, UploadDocumentRequest request)
     {
+        var docId = Guid.NewGuid();
+        var storageKey = $"patient-documents/{mobileNumber}/{docId}/{request.FileName}";
+        var bytes = Convert.FromBase64String(request.FileBase64);
+        await _storage.UploadAsync(storageKey, bytes, request.MimeType);
+
         var doc = new PatientDocument
         {
+            Id = docId,
             MobileNumber = mobileNumber,
             DocumentType = request.DocumentType,
             FileName = request.FileName,
-            FileBase64 = request.FileBase64,
+            StorageKey = storageKey,
             MimeType = request.MimeType,
             Description = request.Description,
             HospitalName = request.HospitalName,
@@ -298,6 +306,7 @@ public class HealthRecordsService : IHealthRecordsService
         if (doc == null) return ApiResponse<PatientDocumentResponse>.Fail("Document not found.");
 
         var response = MapToResponse(doc);
+        response.FileUrl = await _storage.GetPresignedUrlAsync(doc.StorageKey, TimeSpan.FromMinutes(15));
         return ApiResponse<PatientDocumentResponse>.Ok(response);
     }
 
@@ -308,6 +317,7 @@ public class HealthRecordsService : IHealthRecordsService
 
         if (doc == null) return ApiResponse<bool>.Fail("Document not found.");
 
+        await _storage.DeleteAsync(doc.StorageKey);
         _context.PatientDocuments.Remove(doc);
         await _context.SaveChangesAsync();
 

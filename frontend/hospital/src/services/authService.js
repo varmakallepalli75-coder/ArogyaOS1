@@ -45,6 +45,16 @@ export const authService = {
     return res.data
   },
 
+  forgotPassword: async (email) => {
+    const res = await api.post('/auth/forgot-password', { email })
+    return res.data
+  },
+
+  resetPassword: async (email, code, newPassword) => {
+    const res = await api.post('/auth/reset-password', { email, code, newPassword })
+    return res.data
+  },
+
   getUser: () => {
     const role = getRole()
     const raw  = role === 'superadmin'

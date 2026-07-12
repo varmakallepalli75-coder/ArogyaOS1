@@ -18,6 +18,11 @@ public interface IAuthService
     Task<ApiResponse<UnifiedPatientResponse>> UnifiedPatientLoginAsync(UnifiedPatientLoginRequest request);
     Task<ApiResponse<bool>> LogoutAsync(string userId);
     Task<ApiResponse<bool>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
+    Task<ApiResponse<bool>> RequestPatientOtpAsync(PatientOtpRequest request);
+    Task<ApiResponse<bool>> RequestUnifiedPatientOtpAsync(UnifiedPatientOtpRequest request);
+    Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordRequest request);
+    Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordRequest request);
+    Task<ApiResponse<bool>> VerifyRegistrationOtpAsync(VerifyRegistrationOtpRequest request);
 }
 
 public class AuthService : IAuthService
@@ -26,17 +31,20 @@ public class AuthService : IAuthService
     private readonly AppDbContext _context;
     private readonly ITokenService _tokenService;
     private readonly IAuditService _audit;
+    private readonly IOtpService _otp;
 
     public AuthService(
         UserManager<AppUser> userManager,
         AppDbContext context,
         ITokenService tokenService,
-        IAuditService audit)
+        IAuditService audit,
+        IOtpService otp)
     {
         _userManager = userManager;
         _context = context;
         _tokenService = tokenService;
         _audit = audit;
+        _otp = otp;
     }
 
     public async Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request)
@@ -51,6 +59,11 @@ public class AuthService : IAuthService
             .CheckPasswordAsync(user, request.Password);
         if (!isPasswordValid)
             return ApiResponse<LoginResponse>.Fail("Invalid email or password");
+
+        // ─── Check Email Verified ──────────────────────
+        if (!user.EmailConfirmed)
+            return ApiResponse<LoginResponse>.Fail(
+                "Please verify your email before logging in.");
 
         // ─── Check Active ──────────────────────────────
         if (!user.IsActive)
@@ -230,7 +243,7 @@ public class AuthService : IAuthService
             Role = UserRole.HospitalAdmin,
             HospitalId = hospital.Id,
             IsActive = true,
-            EmailConfirmed = true
+            EmailConfirmed = false
         };
 
         var result = await _userManager
@@ -248,6 +261,8 @@ public class AuthService : IAuthService
             adminUser,
             UserRole.HospitalAdmin.ToString());
 
+        await _otp.RequestOtpAsync(OtpPurpose.HospitalRegistration, request.AdminEmail);
+
         return ApiResponse<RegisterHospitalResponse>.Ok(
             new RegisterHospitalResponse
             {
@@ -257,6 +272,7 @@ public class AuthService : IAuthService
                 AdminEmail = request.AdminEmail,
                 Plan = request.Plan,
                 Message = "Hospital registered successfully! " +
+                          "Check your email for a verification code. " +
                           "14 day free trial activated."
             }, "Registration successful");
     }
@@ -332,6 +348,12 @@ public class AuthService : IAuthService
             }
         }
 
+        // ─── Verify OTP ─────────────────────────────────
+        var otpResult = await _otp.VerifyOtpAsync(
+            OtpPurpose.PatientLogin, request.MobileNumber, request.Code);
+        if (!otpResult.Success)
+            return ApiResponse<LoginResponse>.Fail(otpResult.Message);
+
         // ─── Generate token ────────────────────────────
         var token = _tokenService.GeneratePatientToken(patient, hospital);
 
@@ -369,6 +391,12 @@ public class AuthService : IAuthService
         if (!patients.Any())
             return ApiResponse<UnifiedPatientResponse>.Fail(
                 "No records found. Please check your mobile number and date of birth.");
+
+        // ─── Verify OTP ─────────────────────────────────
+        var otpResult = await _otp.VerifyOtpAsync(
+            OtpPurpose.PatientLogin, request.MobileNumber, request.Code);
+        if (!otpResult.Success)
+            return ApiResponse<UnifiedPatientResponse>.Fail(otpResult.Message);
 
         var fullName = patients.First().FullName;
         var records = patients
@@ -426,5 +454,82 @@ public class AuthService : IAuthService
                 result.Errors.Select(e => e.Description).ToList());
 
         return ApiResponse<bool>.Ok(true, "Password changed successfully.");
+    }
+
+    private const string PatientOtpGenericMessage = "If the details match a patient record, a code has been sent.";
+
+    public async Task<ApiResponse<bool>> RequestPatientOtpAsync(PatientOtpRequest request)
+    {
+        var hospital = await _context.Hospitals
+            .FirstOrDefaultAsync(h => h.HospitalCode == request.HospitalCode);
+        if (hospital == null)
+            return ApiResponse<bool>.Ok(true, PatientOtpGenericMessage);
+
+        var patient = await _context.Patients
+            .FirstOrDefaultAsync(p => p.HospitalId == hospital.Id && p.MobileNumber == request.MobileNumber);
+        if (patient == null)
+            return ApiResponse<bool>.Ok(true, PatientOtpGenericMessage);
+
+        var result = await _otp.RequestOtpAsync(OtpPurpose.PatientLogin, request.MobileNumber);
+        // On success, use the generic message so the response is identical to the "not found" case above.
+        return result.Success ? ApiResponse<bool>.Ok(true, PatientOtpGenericMessage) : result;
+    }
+
+    public async Task<ApiResponse<bool>> RequestUnifiedPatientOtpAsync(UnifiedPatientOtpRequest request)
+    {
+        var exists = await _context.Patients.AnyAsync(p => p.MobileNumber == request.MobileNumber);
+        if (!exists)
+            return ApiResponse<bool>.Ok(true, PatientOtpGenericMessage);
+
+        var result = await _otp.RequestOtpAsync(OtpPurpose.PatientLogin, request.MobileNumber);
+        return result.Success ? ApiResponse<bool>.Ok(true, PatientOtpGenericMessage) : result;
+    }
+
+    public async Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user != null)
+            await _otp.RequestOtpAsync(OtpPurpose.StaffPasswordReset, request.Email);
+
+        // Generic response regardless of whether the email exists, to avoid user enumeration.
+        return ApiResponse<bool>.Ok(true, "If that email exists, a verification code has been sent.");
+    }
+
+    public async Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+            return ApiResponse<bool>.Fail("Invalid or expired code.");
+
+        var otpResult = await _otp.VerifyOtpAsync(
+            OtpPurpose.StaffPasswordReset, request.Email, request.Code);
+        if (!otpResult.Success)
+            return ApiResponse<bool>.Fail(otpResult.Message);
+
+        await _userManager.RemovePasswordAsync(user);
+        var result = await _userManager.AddPasswordAsync(user, request.NewPassword);
+        if (!result.Succeeded)
+            return ApiResponse<bool>.Fail(
+                "Failed to reset password.",
+                result.Errors.Select(e => e.Description).ToList());
+
+        return ApiResponse<bool>.Ok(true, "Password reset successfully.");
+    }
+
+    public async Task<ApiResponse<bool>> VerifyRegistrationOtpAsync(VerifyRegistrationOtpRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+            return ApiResponse<bool>.Fail("Invalid or expired code.");
+
+        var otpResult = await _otp.VerifyOtpAsync(
+            OtpPurpose.HospitalRegistration, request.Email, request.Code);
+        if (!otpResult.Success)
+            return ApiResponse<bool>.Fail(otpResult.Message);
+
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+
+        return ApiResponse<bool>.Ok(true, "Email verified successfully. You can now log in.");
     }
 }

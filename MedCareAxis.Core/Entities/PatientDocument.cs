@@ -6,7 +6,7 @@ public class PatientDocument
     public string MobileNumber { get; set; } = string.Empty;
     public string DocumentType { get; set; } = "Other";
     public string FileName { get; set; } = string.Empty;
-    public string FileBase64 { get; set; } = string.Empty;
+    public string StorageKey { get; set; } = string.Empty;   // R2 object key
     public string MimeType { get; set; } = "application/pdf";
     public string? Description { get; set; }
     public string? HospitalName { get; set; }

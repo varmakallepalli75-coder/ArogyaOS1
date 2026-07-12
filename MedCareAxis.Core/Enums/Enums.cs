@@ -86,4 +86,4 @@ public enum DocumentType         { Consent, Discharge, Lab, Radiology,
 public enum UserRole             { SuperAdmin, HospitalAdmin, Doctor, Nurse,
                                    Receptionist, Billing, Pharmacy, Lab,
                                    Radiology, Patient, Manager }
-                                   
+public enum OtpPurpose           { PatientLogin, StaffPasswordReset, HospitalRegistration }

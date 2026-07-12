@@ -51,6 +51,17 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
+    // ─── POST api/auth/patient-login/request-otp ──────
+    [HttpPost("patient-login/request-otp")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RequestPatientLoginOtp([FromBody] PatientOtpRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.RequestPatientOtpAsync(request);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
     // ─── POST api/auth/patient-login ──────────────────
     [HttpPost("patient-login")]
     [AllowAnonymous]
@@ -62,6 +73,17 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    // ─── POST api/auth/patient-unified-login/request-otp ──
+    [HttpPost("patient-unified-login/request-otp")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RequestUnifiedPatientLoginOtp([FromBody] UnifiedPatientOtpRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.RequestUnifiedPatientOtpAsync(request);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
     // ─── POST api/auth/patient-unified-login ──────────
     [HttpPost("patient-unified-login")]
     [AllowAnonymous]
@@ -69,6 +91,38 @@ public class AuthController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await _authService.UnifiedPatientLoginAsync(request);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    // ─── POST api/auth/forgot-password ─────────────────
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.ForgotPasswordAsync(request);
+        return Ok(result);
+    }
+
+    // ─── POST api/auth/reset-password ──────────────────
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.ResetPasswordAsync(request);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    // ─── POST api/auth/verify-registration-otp ─────────
+    [HttpPost("verify-registration-otp")]
+    [AllowAnonymous]
+    public async Task<IActionResult> VerifyRegistrationOtp([FromBody] VerifyRegistrationOtpRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _authService.VerifyRegistrationOtpAsync(request);
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }

@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+frontend/
+.git/
+.github/
+MedCareAxis.Tests/
+**/node_modules/
+**/.env
+*.md
+nginx/
+scripts/

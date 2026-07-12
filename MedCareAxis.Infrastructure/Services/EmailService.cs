@@ -1,6 +1,7 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 
 namespace MedCareAxis.Infrastructure.Services;
@@ -12,13 +13,19 @@ public interface IEmailService
     Task SendAppointmentConfirmationAsync(string toEmail, string patientName,
         string doctorName, string department, DateTime appointmentTime, string hospitalName, string tokenNumber);
     Task SendSubscriptionExpiryWarningAsync(string toEmail, string hospitalName, DateTime expiryDate);
+    Task SendOtpEmailAsync(string toEmail, string otpCode, string purposeLabel);
 }
 
 public class EmailService : IEmailService
 {
     private readonly IConfiguration _config;
+    private readonly ILogger<EmailService> _logger;
 
-    public EmailService(IConfiguration config) => _config = config;
+    public EmailService(IConfiguration config, ILogger<EmailService> logger)
+    {
+        _config = config;
+        _logger = logger;
+    }
 
     private SmtpSettings Settings => new()
     {
@@ -116,10 +123,40 @@ public class EmailService : IEmailService
         await SendAsync(toEmail, $"⚠️ Subscription expiring in {daysLeft} days — {hospitalName}", html);
     }
 
+    public async Task SendOtpEmailAsync(string toEmail, string otpCode, string purposeLabel)
+    {
+        var html = $"""
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+              <div style="background:#1e293b;padding:24px;border-radius:12px 12px 0 0">
+                <h1 style="color:#10b981;margin:0">🏥 MedCareAxis</h1>
+              </div>
+              <div style="background:#fff;padding:32px;border:1px solid #e2e8f0">
+                <h2 style="color:#1e293b">Your Verification Code</h2>
+                <p style="color:#475569">Use the code below to {purposeLabel}. It expires in 5 minutes.</p>
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:24px;margin:20px 0;text-align:center">
+                  <span style="font-family:monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#10b981">{otpCode}</span>
+                </div>
+                <p style="color:#94a3b8;font-size:13px">If you didn't request this code, you can safely ignore this email.</p>
+              </div>
+              <div style="background:#f8fafc;padding:16px;border-radius:0 0 12px 12px;text-align:center">
+                <p style="color:#94a3b8;font-size:12px;margin:0">© 2024 MedCareAxis · All rights reserved</p>
+              </div>
+            </div>
+            """;
+
+        await SendAsync(toEmail, $"Your MedCareAxis verification code: {otpCode}", html);
+    }
+
     private async Task SendAsync(string toEmail, string subject, string htmlBody)
     {
         var s = Settings;
-        if (string.IsNullOrEmpty(s.Username)) return; // Email not configured — skip silently
+        if (string.IsNullOrEmpty(s.Username))
+        {
+            // Email not configured (e.g. local dev) — log instead of sending so email-driven
+            // flows (like OTP) can still be exercised end-to-end without real SMTP credentials.
+            _logger.LogInformation("Email not configured — would send to {ToEmail}: {Subject}", toEmail, subject);
+            return;
+        }
 
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(s.FromName, s.From));

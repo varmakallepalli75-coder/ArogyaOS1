@@ -98,6 +98,9 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<StaffLeave> StaffLeaves => Set<StaffLeave>();
     public DbSet<StaffAttendance> StaffAttendances => Set<StaffAttendance>();
 
+    // ─── OTP ───────────────────────────────────────────
+    public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -189,6 +192,14 @@ public class AppDbContext : IdentityDbContext<AppUser>
             e.HasOne(x => x.Hospital)
              .WithOne(x => x.Subscription)
              .HasForeignKey<Subscription>(x => x.HospitalId);
+        });
+
+        // ─── OTP ───────────────────────────────────────
+        builder.Entity<OtpCode>(e =>
+        {
+            e.HasIndex(x => new { x.Purpose, x.Identifier, x.Consumed });
+            e.Property(x => x.Identifier).HasMaxLength(100);
+            e.Property(x => x.CodeHash).HasMaxLength(100);
         });
 
         // ─── Rename Identity Tables ────────────────────

@@ -109,4 +109,5 @@ public class PatientDocumentResponse
     public string? HospitalName { get; set; }
     public DateTime DocumentDate { get; set; }
     public DateTime UploadedAt { get; set; }
+    public string? FileUrl { get; set; }   // populated only when fetching a single document
 }

@@ -42,9 +42,13 @@ builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.ISupportService, 
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IOTService,               MedCareAxis.Infrastructure.Services.OTService>();
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IDepositService,           MedCareAxis.Infrastructure.Services.DepositService>();
 builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IHealthRecordsService,    MedCareAxis.Infrastructure.Services.HealthRecordsService>();
+builder.Services.AddScoped<MedCareAxis.Infrastructure.Services.IOtpService,               MedCareAxis.Infrastructure.Services.OtpService>();
+builder.Services.AddHttpClient<MedCareAxis.Infrastructure.Services.ISmsService, MedCareAxis.Infrastructure.Services.Msg91SmsService>();
 builder.Services.AddHostedService<MedCareAxis.Infrastructure.Services.MedicineReminderJob>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+builder.Services.AddHealthChecks()
+    .AddCheck<MedCareAxis.Infrastructure.Services.DatabaseHealthCheck>("database");
 
 // ─── JWT Authentication ────────────────────────────────
 // Prevent the JWT handler from remapping short claim names (e.g. "role" → long URN)
@@ -126,5 +130,6 @@ app.UseCors("MedCareAxisPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

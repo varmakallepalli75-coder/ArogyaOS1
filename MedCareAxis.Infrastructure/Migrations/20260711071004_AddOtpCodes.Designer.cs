@@ -3,6 +3,7 @@ using System;
 using MedCareAxis.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MedCareAxis.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260711071004_AddOtpCodes")]
+    partial class AddOtpCodes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2362,6 +2365,10 @@ namespace MedCareAxis.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("FileBase64")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -2374,10 +2381,6 @@ namespace MedCareAxis.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("MobileNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("StorageKey")
                         .IsRequired()
                         .HasColumnType("text");
 

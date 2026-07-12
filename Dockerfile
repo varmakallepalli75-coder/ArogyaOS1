@@ -16,4 +16,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 EXPOSE 5200
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "MedCareAxis.API.dll"]
+# Render assigns a dynamic $PORT and requires the app to bind to it;
+# falls back to 5200 for docker-compose, which sets ASPNETCORE_URLS itself.
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://+:${PORT:-5200} dotnet MedCareAxis.API.dll"]

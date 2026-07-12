@@ -1,0 +1,9 @@
+{
+  "installCommand": "cd ../.. && npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://medcareaxis-api.onrender.com/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

@@ -35,6 +35,7 @@ public static class DependencyInjection
         .AddDefaultTokenProviders();
 
         services.AddScoped<ICurrentTenantService, CurrentTenantService>();
+        services.AddSingleton<IFileStorageService, R2FileStorageService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPatientService, PatientService>();
