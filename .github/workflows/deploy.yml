@@ -1,0 +1,99 @@
+name: MedCareAxis CI/CD Pipeline
+
+on:
+  push:
+    branches: [ dev, staging ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ✅ JOB 1 - Test & Build (runs on every branch)
+  test:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET 10
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Run Tests
+      run: dotnet test -c Release --no-build
+
+  # 🚀 JOB 2 - Deploy to Dev (only on dev branch push)
+  deploy-dev:
+    name: Deploy to Dev
+    needs: test
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to Dev Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /var/www/medcareaxis
+          git fetch origin
+          git checkout dev
+          git pull origin dev
+          /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-dev
+          sudo systemctl restart medcareaxis-dev
+          echo "✅ Dev Deployed Successfully!"
+
+  # 🧪 JOB 3 - Deploy to Staging (only on staging branch push)
+  deploy-staging:
+    name: Deploy to Staging
+    needs: test
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to Staging Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /var/www/medcareaxis
+          git fetch origin
+          git checkout staging
+          git pull origin staging
+          /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-staging
+          sudo systemctl restart medcareaxis-staging
+          echo "✅ Staging Deployed Successfully!"
+
+  # 🌐 JOB 4 - Deploy to Production (manual approval required)
+  deploy-production:
+    name: Deploy to Production
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://medcareaxis.com
+    steps:
+    - name: Deploy to Production
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /var/www/medcareaxis
+          git fetch origin
+          git checkout main
+          git pull origin main
+          /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-published
+          sudo systemctl restart medcareaxis
+          echo "✅ Production Deployed Successfully!"
