@@ -47,8 +47,23 @@ jobs:
           git fetch origin
           git checkout dev
           git pull origin dev
+
+          # Backend
           /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-dev
           sudo systemctl restart medcareaxis-dev
+
+          # Frontend — workspace install once, then build each app
+          cd frontend
+          npm ci
+          cd hospital
+          npm run build
+          sudo rm -rf /var/www/hospital-dev/*
+          sudo cp -r dist/* /var/www/hospital-dev/
+          cd ../patient-portal
+          npm run build
+          sudo rm -rf /var/www/portal-dev/*
+          sudo cp -r dist/* /var/www/portal-dev/
+
           echo "✅ Dev Deployed Successfully!"
 
   # 🧪 JOB 3 - Deploy to Staging (only on staging branch push)
@@ -69,8 +84,23 @@ jobs:
           git fetch origin
           git checkout staging
           git pull origin staging
+
+          # Backend
           /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-staging
           sudo systemctl restart medcareaxis-staging
+
+          # Frontend — workspace install once, then build each app
+          cd frontend
+          npm ci
+          cd hospital
+          npm run build
+          sudo rm -rf /var/www/hospital-staging/*
+          sudo cp -r dist/* /var/www/hospital-staging/
+          cd ../patient-portal
+          npm run build
+          sudo rm -rf /var/www/portal-staging/*
+          sudo cp -r dist/* /var/www/portal-staging/
+
           echo "✅ Staging Deployed Successfully!"
 
   # 🌐 JOB 4 - Deploy to Production (manual approval required)
@@ -94,6 +124,21 @@ jobs:
           git fetch origin
           git checkout main
           git pull origin main
+
+          # Backend
           /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-published
           sudo systemctl restart medcareaxis
+
+          # Frontend — workspace install once, then build each app
+          cd frontend
+          npm ci
+          cd hospital
+          npm run build
+          sudo rm -rf /var/www/hospital/*
+          sudo cp -r dist/* /var/www/hospital/
+          cd ../patient-portal
+          npm run build
+          sudo rm -rf /var/www/portal/*
+          sudo cp -r dist/* /var/www/portal/
+
           echo "✅ Production Deployed Successfully!"
