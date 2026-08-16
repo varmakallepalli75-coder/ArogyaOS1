@@ -60,7 +60,7 @@ public class MedicineReminderJob : BackgroundService
         try
         {
             var acquired = await context.Database
-                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0})", ReminderLockKey)
+                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0}::bigint)", ReminderLockKey)
                 .FirstAsync(ct);
 
             if (!acquired)
@@ -73,7 +73,7 @@ public class MedicineReminderJob : BackgroundService
         }
         finally
         {
-            await context.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock({0})", new object?[] { ReminderLockKey }, ct);
+            await context.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock({0}::bigint)", new object?[] { ReminderLockKey }, ct);
             await context.Database.CloseConnectionAsync();
         }
     }
