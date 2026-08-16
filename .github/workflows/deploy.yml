@@ -2,7 +2,7 @@ name: MedCareAxis CI/CD Pipeline
 
 on:
   push:
-    branches: [ dev, staging ]
+    branches: [ dev, staging, main ]
   pull_request:
     branches: [ main ]
 
