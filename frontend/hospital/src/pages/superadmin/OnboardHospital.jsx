@@ -69,9 +69,14 @@ export default function OnboardHospital() {
         setError(res.message || 'Failed to onboard hospital')
       }
     } catch(e) {
-      // Extract real error from API response
+      // Extract real error from API response. ASP.NET's automatic model
+      // validation returns { title: "One or more validation errors occurred.",
+      // errors: { FieldName: ["message"], ... } } — surface the actual
+      // per-field messages instead of just the generic title.
+      const validationErrors = e.response?.data?.errors
+      const fieldErrors = validationErrors && Object.values(validationErrors).flat().join(' ')
       const apiMsg = e.response?.data?.message
-        || e.response?.data?.errors?.request?.[0]
+        || fieldErrors
         || e.response?.data?.title
         || e.message
         || 'Something went wrong. Please try again.'

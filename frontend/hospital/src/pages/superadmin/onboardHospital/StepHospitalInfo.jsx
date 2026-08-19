@@ -93,7 +93,7 @@ export default function StepHospitalInfo({ form, set, onNext }) {
         </div>
       </div>
       <button onClick={onNext}
-        disabled={!form.hospitalName || !form.hospitalEmail || !form.phone || !form.city || !form.state}
+        disabled={!form.hospitalName || !form.hospitalEmail || !form.phone || !form.address || !form.city || !form.state || !form.pinCode}
         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-40 mt-2">
         Next: Specialty & Modules →
       </button>
