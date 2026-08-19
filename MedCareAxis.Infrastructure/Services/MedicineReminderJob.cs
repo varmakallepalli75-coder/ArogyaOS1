@@ -60,7 +60,7 @@ public class MedicineReminderJob : BackgroundService
         try
         {
             var acquired = await context.Database
-                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0}::bigint)", ReminderLockKey)
+                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0}::bigint) AS \"Value\"", ReminderLockKey)
                 .FirstAsync(ct);
 
             if (!acquired)

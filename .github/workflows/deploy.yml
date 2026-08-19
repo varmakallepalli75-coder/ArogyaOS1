@@ -103,15 +103,12 @@ jobs:
 
           echo "✅ Staging Deployed Successfully!"
 
-  # 🌐 JOB 4 - Deploy to Production (manual approval required)
+  # 🌐 JOB 4 - Deploy to Production (auto, on push to main)
   deploy-production:
     name: Deploy to Production
     needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://medcareaxis.com
     steps:
     - name: Deploy to Production
       uses: appleboy/ssh-action@master
