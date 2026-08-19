@@ -1,0 +1,41 @@
+# Reference systemd unit for the MedCareAxis API on bare-metal EC2.
+#
+# This is a template, not something the deploy pipeline installs automatically —
+# nothing in .github/workflows/deploy.yml touches systemd unit files, it only
+# restarts a service that's assumed to already exist. Copy this to
+# /etc/systemd/system/medcareaxis.service on the box (adjusting paths/ports for
+# -staging / -dev variants), then:
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable medcareaxis
+#   sudo systemctl start medcareaxis
+#
+# For medcareaxis-staging / medcareaxis-dev, copy this file to
+# medcareaxis-staging.service / medcareaxis-dev.service, and change:
+#   - WorkingDirectory to /var/www/medcareaxis-staging or /var/www/medcareaxis-dev
+#   - EnvironmentFile to a separate env file for that environment
+#   - The port in ASPNETCORE_URLS below if running multiple environments
+#     concurrently on the same host (they can't all bind 5200 at once)
+
+[Unit]
+Description=MedCareAxis API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/var/www/medcareaxis-published
+ExecStart=/usr/share/dotnet/dotnet /var/www/medcareaxis-published/MedCareAxis.API.dll
+Restart=on-failure
+RestartSec=5
+
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5200
+
+# All JwtSettings__*, ConnectionStrings__*, R2__*, Msg91__*, Email__*, etc. —
+# same Key__SubKey convention as .env.example. Keep this file outside version
+# control (e.g. /etc/medcareaxis/api.env) and chmod 600 it.
+EnvironmentFile=/etc/medcareaxis/api.env
+
+[Install]
+WantedBy=multi-user.target

@@ -1,3 +1,6 @@
+# ⚠️ NOT USED FOR HOSTING. Production runs on bare-metal EC2 (systemd + manually
+# configured nginx) — see DEPLOYMENT.md. This file describes an earlier, abandoned
+# deployment plan and is kept only in case it's useful for local development.
 version: '3.9'
 
 services:

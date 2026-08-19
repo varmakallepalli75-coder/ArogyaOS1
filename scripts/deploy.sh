@@ -1,4 +1,9 @@
 #!/bin/bash
+# ⚠️ NOT USED FOR HOSTING. Production runs on bare-metal EC2 (systemd + manually
+# configured nginx, deployed via .github/workflows/deploy.yml on push) — see
+# DEPLOYMENT.md. This script describes an earlier, abandoned Docker/VPS deployment
+# plan and is kept only for reference.
+#
 # MedCareAxis — Full deployment script
 # Run this on your Ubuntu/Debian VPS as root or with sudo
 set -e

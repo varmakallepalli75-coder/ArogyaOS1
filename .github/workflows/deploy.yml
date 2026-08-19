@@ -43,16 +43,45 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          set -euo pipefail
+
           cd /var/www/medcareaxis
           git fetch origin
           git checkout dev
           git pull origin dev
 
-          # Backend
+          # Backend — back up the current build so a failed health check can revert to it
+          sudo rm -rf /var/www/medcareaxis-dev.bak
+          if [ -d /var/www/medcareaxis-dev ]; then
+            sudo cp -r /var/www/medcareaxis-dev /var/www/medcareaxis-dev.bak
+          fi
+
           /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-dev
           sudo systemctl restart medcareaxis-dev
 
-          # Frontend — workspace install once, then build each app
+          # Verify it actually came back up before touching the frontend or declaring success
+          HEALTHY=0
+          for i in $(seq 1 15); do
+            if curl -sf http://127.0.0.1:5200/health > /dev/null; then
+              HEALTHY=1
+              break
+            fi
+            sleep 2
+          done
+
+          if [ "$HEALTHY" -ne 1 ]; then
+            echo "❌ Dev health check failed after deploy — rolling back backend"
+            if [ -d /var/www/medcareaxis-dev.bak ]; then
+              sudo rm -rf /var/www/medcareaxis-dev
+              sudo mv /var/www/medcareaxis-dev.bak /var/www/medcareaxis-dev
+              sudo systemctl restart medcareaxis-dev
+            fi
+            exit 1
+          fi
+
+          # Frontend — only reached once the backend is confirmed healthy.
+          # set -e means a failed build here stops before the destructive rm -rf,
+          # so the previously-deployed frontend is left intact on failure.
           cd frontend
           npm ci
           cd hospital
@@ -80,16 +109,45 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          set -euo pipefail
+
           cd /var/www/medcareaxis
           git fetch origin
           git checkout staging
           git pull origin staging
 
-          # Backend
+          # Backend — back up the current build so a failed health check can revert to it
+          sudo rm -rf /var/www/medcareaxis-staging.bak
+          if [ -d /var/www/medcareaxis-staging ]; then
+            sudo cp -r /var/www/medcareaxis-staging /var/www/medcareaxis-staging.bak
+          fi
+
           /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-staging
           sudo systemctl restart medcareaxis-staging
 
-          # Frontend — workspace install once, then build each app
+          # Verify it actually came back up before touching the frontend or declaring success
+          HEALTHY=0
+          for i in $(seq 1 15); do
+            if curl -sf http://127.0.0.1:5200/health > /dev/null; then
+              HEALTHY=1
+              break
+            fi
+            sleep 2
+          done
+
+          if [ "$HEALTHY" -ne 1 ]; then
+            echo "❌ Staging health check failed after deploy — rolling back backend"
+            if [ -d /var/www/medcareaxis-staging.bak ]; then
+              sudo rm -rf /var/www/medcareaxis-staging
+              sudo mv /var/www/medcareaxis-staging.bak /var/www/medcareaxis-staging
+              sudo systemctl restart medcareaxis-staging
+            fi
+            exit 1
+          fi
+
+          # Frontend — only reached once the backend is confirmed healthy.
+          # set -e means a failed build here stops before the destructive rm -rf,
+          # so the previously-deployed frontend is left intact on failure.
           cd frontend
           npm ci
           cd hospital
@@ -117,16 +175,45 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          set -euo pipefail
+
           cd /var/www/medcareaxis
           git fetch origin
           git checkout main
           git pull origin main
 
-          # Backend
+          # Backend — back up the current build so a failed health check can revert to it
+          sudo rm -rf /var/www/medcareaxis-published.bak
+          if [ -d /var/www/medcareaxis-published ]; then
+            sudo cp -r /var/www/medcareaxis-published /var/www/medcareaxis-published.bak
+          fi
+
           /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-published
           sudo systemctl restart medcareaxis
 
-          # Frontend — workspace install once, then build each app
+          # Verify it actually came back up before touching the frontend or declaring success
+          HEALTHY=0
+          for i in $(seq 1 15); do
+            if curl -sf http://127.0.0.1:5200/health > /dev/null; then
+              HEALTHY=1
+              break
+            fi
+            sleep 2
+          done
+
+          if [ "$HEALTHY" -ne 1 ]; then
+            echo "❌ Production health check failed after deploy — rolling back backend"
+            if [ -d /var/www/medcareaxis-published.bak ]; then
+              sudo rm -rf /var/www/medcareaxis-published
+              sudo mv /var/www/medcareaxis-published.bak /var/www/medcareaxis-published
+              sudo systemctl restart medcareaxis
+            fi
+            exit 1
+          fi
+
+          # Frontend — only reached once the backend is confirmed healthy.
+          # set -e means a failed build here stops before the destructive rm -rf,
+          # so the previously-deployed frontend is left intact on failure.
           cd frontend
           npm ci
           cd hospital
