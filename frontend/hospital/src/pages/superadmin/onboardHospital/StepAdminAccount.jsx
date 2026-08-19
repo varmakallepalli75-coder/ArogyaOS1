@@ -46,7 +46,7 @@ export default function StepAdminAccount({ form, set, onNext, onBack }) {
           ← Back
         </button>
         <button onClick={onNext}
-          disabled={!form.adminFirstName || !form.adminLastName || !form.adminEmail || !form.password}
+          disabled={!form.adminFirstName || !form.adminLastName || !form.adminEmail || !form.adminPhone || form.password.length < 8}
           className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-40">
           Next: Plan →
         </button>
