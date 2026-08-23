@@ -28,6 +28,10 @@ public class MedicineReminderJob : BackgroundService
         _logger = logger;
     }
 
+    // How often the job polls for due reminders. SendDueRemindersAsync's window
+    // matches this so each slot is caught by exactly one run instead of two.
+    private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(5);
+
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)
@@ -41,8 +45,7 @@ public class MedicineReminderJob : BackgroundService
                 _logger.LogError(ex, "Medicine reminder job error");
             }
 
-            // Run every 5 minutes
-            await Task.Delay(TimeSpan.FromMinutes(5), ct);
+            await Task.Delay(PollInterval, ct);
         }
     }
 
@@ -82,10 +85,14 @@ public class MedicineReminderJob : BackgroundService
     {
         var now = DateTime.UtcNow.TimeOfDay;
 
-        // Find which slot(s) are within ±5 minutes of now
+        // Find which slot(s) fell within the trailing poll window, i.e. slotTime in
+        // (now - PollInterval, now]. This window is exactly one poll interval wide,
+        // so consecutive runs (spaced PollInterval apart) never both claim the same
+        // slot — a wider, overlapping window here previously caused each reminder
+        // to be sent twice (once from the run just before the slot, once just after).
         var dueSlots = SlotTimes
             .Select((t, i) => (slot: i, time: t))
-            .Where(x => Math.Abs((now - x.time).TotalMinutes) <= 5)
+            .Where(x => x.time <= now && (now - x.time) < PollInterval)
             .ToList();
 
         if (!dueSlots.Any()) return;
