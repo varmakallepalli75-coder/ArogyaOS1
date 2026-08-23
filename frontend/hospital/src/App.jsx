@@ -50,10 +50,27 @@ const ProtectedRoute = ({ children, perm }) => {
 }
 
 const PublicRoute = ({ children }) => {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   if (user) {
-    if (isSuperAdmin(user.role)) return <Navigate to="/super-admin" replace />
-    return <Navigate to="/dashboard" replace />
+    const destination = isSuperAdmin(user.role) ? '/super-admin' : '/dashboard'
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-sm w-full text-center">
+          <p className="text-sm text-gray-500 mb-1">You're already signed in as</p>
+          <p className="font-semibold text-gray-900 mb-6">{user.email || user.fullName || 'this account'}</p>
+          <div className="flex flex-col gap-3">
+            <button onClick={() => window.location.href = destination}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold text-sm">
+              Continue to Dashboard
+            </button>
+            <button onClick={logout}
+              className="w-full py-3 border border-gray-200 rounded-xl text-sm font-medium hover:bg-gray-50">
+              Log out and sign in as someone else
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
   return children
 }
