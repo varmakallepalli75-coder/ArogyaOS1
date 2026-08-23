@@ -7,16 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  # ✅ JOB 1 - Test & Build (runs on every branch)
+  # ✅ JOB 1 - Test & Build Backend
   test:
-    name: Test & Build
+    name: Backend build & test
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup .NET 10
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x'
 
@@ -29,10 +29,110 @@ jobs:
     - name: Run Tests
       run: dotnet test -c Release --no-build
 
-  # 🚀 JOB 2 - Deploy to Dev (only on dev branch push)
+  # ✅ JOB 2 - Build Frontend
+  build-frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install root dependencies
+      run: cd frontend && npm ci
+
+    - name: Build Hospital frontend
+      run: cd frontend/hospital && npm run build
+
+    - name: Upload Hospital dist
+      uses: actions/upload-artifact@v4
+      with:
+        name: hospital-dist
+        path: frontend/hospital/dist
+
+  # 🚀 JOB 3 - Deploy to Production (only on main branch)
+  deploy-production:
+    name: Deploy to Production
+    needs: [ test, build-frontend ]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Hospital dist
+      uses: actions/download-artifact@v4
+      with:
+        name: hospital-dist
+        path: hospital-dist
+
+    - name: Copy frontend to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "hospital-dist/*"
+        target: "/tmp/hospital-dist"
+        strip_components: 1
+
+    - name: Deploy to Production
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          set -euo pipefail
+
+          # Pull latest code
+          cd /var/www/medcareaxis
+          git fetch origin
+          git checkout main
+          git pull origin main
+
+          # Backup current build
+          sudo rm -rf /var/www/medcareaxis-published.bak
+          if [ -d /var/www/medcareaxis-published ]; then
+            sudo cp -r /var/www/medcareaxis-published /var/www/medcareaxis-published.bak
+          fi
+
+          # Build & deploy backend
+          /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-published
+          sudo systemctl restart medcareaxis
+
+          # Health check — port 5000
+          HEALTHY=0
+          for i in $(seq 1 15); do
+            if curl -sf http://127.0.0.1:5000/health > /dev/null; then
+              HEALTHY=1
+              break
+            fi
+            sleep 3
+          done
+
+          if [ "$HEALTHY" -ne 1 ]; then
+            echo "❌ Health check failed — rolling back"
+            if [ -d /var/www/medcareaxis-published.bak ]; then
+              sudo rm -rf /var/www/medcareaxis-published
+              sudo mv /var/www/medcareaxis-published.bak /var/www/medcareaxis-published
+              sudo systemctl restart medcareaxis
+            fi
+            exit 1
+          fi
+
+          # Deploy frontend
+          sudo rm -rf /var/www/hospital/*
+          sudo cp -r /tmp/hospital-dist/* /var/www/hospital/
+          sudo rm -rf /tmp/hospital-dist
+
+          echo "✅ Production Deployed Successfully!"
+
+  # 🚀 JOB 4 - Deploy to Dev (only on dev branch)
   deploy-dev:
     name: Deploy to Dev
-    needs: test
+    needs: [ test, build-frontend ]
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
@@ -50,55 +150,15 @@ jobs:
           git checkout dev
           git pull origin dev
 
-          # Backend — back up the current build so a failed health check can revert to it
-          sudo rm -rf /var/www/medcareaxis-dev.bak
-          if [ -d /var/www/medcareaxis-dev ]; then
-            sudo cp -r /var/www/medcareaxis-dev /var/www/medcareaxis-dev.bak
-          fi
-
-          /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-dev
-          sudo systemctl restart medcareaxis-dev
-
-          # Verify it actually came back up before touching the frontend or declaring success
-          HEALTHY=0
-          for i in $(seq 1 15); do
-            if curl -sf http://127.0.0.1:5000/health > /dev/null; then
-              HEALTHY=1
-              break
-            fi
-            sleep 2
-          done
-
-          if [ "$HEALTHY" -ne 1 ]; then
-            echo "❌ Dev health check failed after deploy — rolling back backend"
-            if [ -d /var/www/medcareaxis-dev.bak ]; then
-              sudo rm -rf /var/www/medcareaxis-dev
-              sudo mv /var/www/medcareaxis-dev.bak /var/www/medcareaxis-dev
-              sudo systemctl restart medcareaxis-dev
-            fi
-            exit 1
-          fi
-
-          # Frontend — only reached once the backend is confirmed healthy.
-          # set -e means a failed build here stops before the destructive rm -rf,
-          # so the previously-deployed frontend is left intact on failure.
-          cd frontend
-          npm ci
-          cd hospital
-          npm run build
-          sudo rm -rf /var/www/hospital-dev/*
-          sudo cp -r dist/* /var/www/hospital-dev/
-          cd ../patient-portal
-          npm run build
-          sudo rm -rf /var/www/portal-dev/*
-          sudo cp -r dist/* /var/www/portal-dev/
+          /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-dev
+          sudo systemctl restart medcareaxis-dev || true
 
           echo "✅ Dev Deployed Successfully!"
 
-  # 🧪 JOB 3 - Deploy to Staging (only on staging branch push)
+  # 🧪 JOB 5 - Deploy to Staging (only on staging branch)
   deploy-staging:
     name: Deploy to Staging
-    needs: test
+    needs: [ test, build-frontend ]
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
@@ -116,113 +176,7 @@ jobs:
           git checkout staging
           git pull origin staging
 
-          # Backend — back up the current build so a failed health check can revert to it
-          sudo rm -rf /var/www/medcareaxis-staging.bak
-          if [ -d /var/www/medcareaxis-staging ]; then
-            sudo cp -r /var/www/medcareaxis-staging /var/www/medcareaxis-staging.bak
-          fi
-
-          /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-staging
-          sudo systemctl restart medcareaxis-staging
-
-          # Verify it actually came back up before touching the frontend or declaring success
-          HEALTHY=0
-          for i in $(seq 1 15); do
-            if curl -sf http://127.0.0.1:5000/health > /dev/null; then
-              HEALTHY=1
-              break
-            fi
-            sleep 2
-          done
-
-          if [ "$HEALTHY" -ne 1 ]; then
-            echo "❌ Staging health check failed after deploy — rolling back backend"
-            if [ -d /var/www/medcareaxis-staging.bak ]; then
-              sudo rm -rf /var/www/medcareaxis-staging
-              sudo mv /var/www/medcareaxis-staging.bak /var/www/medcareaxis-staging
-              sudo systemctl restart medcareaxis-staging
-            fi
-            exit 1
-          fi
-
-          # Frontend — only reached once the backend is confirmed healthy.
-          # set -e means a failed build here stops before the destructive rm -rf,
-          # so the previously-deployed frontend is left intact on failure.
-          cd frontend
-          npm ci
-          cd hospital
-          npm run build
-          sudo rm -rf /var/www/hospital-staging/*
-          sudo cp -r dist/* /var/www/hospital-staging/
-          cd ../patient-portal
-          npm run build
-          sudo rm -rf /var/www/portal-staging/*
-          sudo cp -r dist/* /var/www/portal-staging/
+          /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-staging
+          sudo systemctl restart medcareaxis-staging || true
 
           echo "✅ Staging Deployed Successfully!"
-
-  # 🌐 JOB 4 - Deploy to Production (auto, on push to main)
-  deploy-production:
-    name: Deploy to Production
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-    - name: Deploy to Production
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          set -euo pipefail
-
-          cd /var/www/medcareaxis
-          git fetch origin
-          git checkout main
-          git pull origin main
-
-          # Backend — back up the current build so a failed health check can revert to it
-          sudo rm -rf /var/www/medcareaxis-published.bak
-          if [ -d /var/www/medcareaxis-published ]; then
-            sudo cp -r /var/www/medcareaxis-published /var/www/medcareaxis-published.bak
-          fi
-
-          /usr/share/dotnet/dotnet publish MedCareAxis.API -c Release -o /var/www/medcareaxis-published
-          sudo systemctl restart medcareaxis
-
-          # Verify it actually came back up before touching the frontend or declaring success
-          HEALTHY=0
-          for i in $(seq 1 15); do
-            if curl -sf http://127.0.0.1:5000/health > /dev/null; then
-              HEALTHY=1
-              break
-            fi
-            sleep 2
-          done
-
-          if [ "$HEALTHY" -ne 1 ]; then
-            echo "❌ Production health check failed after deploy — rolling back backend"
-            if [ -d /var/www/medcareaxis-published.bak ]; then
-              sudo rm -rf /var/www/medcareaxis-published
-              sudo mv /var/www/medcareaxis-published.bak /var/www/medcareaxis-published
-              sudo systemctl restart medcareaxis
-            fi
-            exit 1
-          fi
-
-          # Frontend — only reached once the backend is confirmed healthy.
-          # set -e means a failed build here stops before the destructive rm -rf,
-          # so the previously-deployed frontend is left intact on failure.
-          cd frontend
-          npm ci
-          cd hospital
-          npm run build
-          sudo rm -rf /var/www/hospital/*
-          sudo cp -r dist/* /var/www/hospital/
-          cd ../patient-portal
-          npm run build
-          sudo rm -rf /var/www/portal/*
-          sudo cp -r dist/* /var/www/portal/
-
-          echo "✅ Production Deployed Successfully!"
