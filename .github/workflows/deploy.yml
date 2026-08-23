@@ -48,15 +48,15 @@ jobs:
         script: |
           set -euo pipefail
 
-          # Pull latest code
+          # Pull latest code — force reset to avoid conflicts
           cd /var/www/medcareaxis
           git fetch origin
           git checkout main
-          git pull origin main
+          git reset --hard origin/main
 
           # Fix permissions
-          sudo chown -R ubuntu:ubuntu /var/www/medcareaxis-published
-          sudo chmod -R 755 /var/www/medcareaxis-published
+          sudo chown -R ubuntu:ubuntu /var/www/medcareaxis-published || true
+          sudo chmod -R 755 /var/www/medcareaxis-published || true
 
           # Backup current backend build
           sudo rm -rf /var/www/medcareaxis-published.bak
@@ -132,7 +132,7 @@ jobs:
           cd /var/www/medcareaxis
           git fetch origin
           git checkout dev
-          git pull origin dev
+          git reset --hard origin/dev
 
           sudo systemctl stop medcareaxis-dev || true
           /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-dev
@@ -162,7 +162,7 @@ jobs:
           cd /var/www/medcareaxis
           git fetch origin
           git checkout staging
-          git pull origin staging
+          git reset --hard origin/staging
 
           sudo systemctl stop medcareaxis-staging || true
           /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-staging
