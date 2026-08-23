@@ -54,17 +54,24 @@ jobs:
           git checkout main
           git pull origin main
 
+          # Fix permissions
+          sudo chown -R ubuntu:ubuntu /var/www/medcareaxis-published
+          sudo chmod -R 755 /var/www/medcareaxis-published
+
           # Backup current backend build
           sudo rm -rf /var/www/medcareaxis-published.bak
           if [ -d /var/www/medcareaxis-published ]; then
             sudo cp -r /var/www/medcareaxis-published /var/www/medcareaxis-published.bak
           fi
 
+          # Stop service before publishing to release file locks
+          sudo systemctl stop medcareaxis
+
           # Build backend
           /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-published
 
           # Restart backend service
-          sudo systemctl restart medcareaxis
+          sudo systemctl start medcareaxis
 
           # Wait for app to start
           echo "Waiting for app to start..."
@@ -82,11 +89,12 @@ jobs:
 
           if [ "$HEALTHY" -ne 1 ]; then
             echo "❌ Health check failed — rolling back backend"
+            sudo systemctl stop medcareaxis
             if [ -d /var/www/medcareaxis-published.bak ]; then
               sudo rm -rf /var/www/medcareaxis-published
               sudo mv /var/www/medcareaxis-published.bak /var/www/medcareaxis-published
-              sudo systemctl restart medcareaxis
             fi
+            sudo systemctl start medcareaxis
             exit 1
           fi
 
@@ -126,9 +134,9 @@ jobs:
           git checkout dev
           git pull origin dev
 
-          # Build backend
+          sudo systemctl stop medcareaxis-dev || true
           /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-dev
-          sudo systemctl restart medcareaxis-dev || true
+          sudo systemctl start medcareaxis-dev || true
 
           echo "✅ Dev Deployed Successfully!"
 
@@ -156,8 +164,8 @@ jobs:
           git checkout staging
           git pull origin staging
 
-          # Build backend
+          sudo systemctl stop medcareaxis-staging || true
           /usr/share/dotnet/dotnet publish MedCareAxis.API/MedCareAxis.API.csproj -c Release -o /var/www/medcareaxis-staging
-          sudo systemctl restart medcareaxis-staging || true
+          sudo systemctl start medcareaxis-staging || true
 
           echo "✅ Staging Deployed Successfully!"
