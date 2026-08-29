@@ -14,7 +14,12 @@ export function createApiClient({ baseURL = '/api', headers, getToken, onUnautho
   api.interceptors.response.use(
     response => response,
     error => {
-      if (error.response?.status === 401) {
+      // A 401 on a login attempt just means the credentials were rejected — let the
+      // caller read the error body and show it. Only a 401 on some *other* request
+      // means the session expired, which is what should bounce the user to /login.
+      const url = error.config?.url ?? ''
+      const isLoginAttempt = /\/auth\/(login|patient-login|patient-unified-login)$/.test(url)
+      if (error.response?.status === 401 && !isLoginAttempt) {
         onUnauthorized?.()
         window.location.href = '/login'
       }

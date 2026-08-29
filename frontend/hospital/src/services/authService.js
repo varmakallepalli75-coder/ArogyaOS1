@@ -7,7 +7,24 @@ const getRole = () => sessionStorage.getItem('activeRole')
 
 export const authService = {
   login: async (email, password) => {
-    const res = await api.post('/auth/login', { email, password })
+    let res
+    try {
+      res = await api.post('/auth/login', { email, password })
+    } catch (err) {
+      // The API returns a non-2xx status (401 for bad credentials, 500 on an
+      // internal error, 429 when rate-limited). Surface a real message instead
+      // of letting this throw up to a generic "something went wrong".
+      const data = err.response?.data
+      if (data && typeof data === 'object' && 'success' in data) return data
+      if (err.response) {
+        const msg = err.response.status === 429
+          ? 'Too many attempts. Please wait a minute and try again.'
+          : data?.detail || data?.title
+            || `Login failed (server error ${err.response.status}). Please try again.`
+        return { success: false, message: msg }
+      }
+      return { success: false, message: 'Cannot reach the server. Check your connection and try again.' }
+    }
     if (res.data.success) {
       const user  = res.data.data.user
       const isSA  = isSuperAdmin(user.role)
