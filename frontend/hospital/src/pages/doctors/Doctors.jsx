@@ -29,7 +29,6 @@ export default function Doctors() {
     dayOfWeek: d, enabled: true, startTime: '09:00',
     endTime: '13:00', slotDurationMinutes: 15, maxPatients: 20
   }))
-  const [schedules, setSchedules] = useState(defaultSched)
   const [editSchedules, setEditSchedules] = useState(defaultSched)
 
   useEffect(() => { loadData() }, [])
@@ -80,12 +79,12 @@ export default function Doctors() {
     setSaving(true)
     setError('')
     try {
-      const res = await departmentService.createDoctor(buildPayload(form, schedules))
+      // Quick-add: no schedule at creation — the admin sets working hours later via Edit.
+      const res = await departmentService.createDoctor(buildPayload(form, []))
       if (res.success) {
         setSuccess('Doctor added successfully!')
         setShowForm(false)
         setForm(emptyForm)
-        setSchedules(defaultSched)
         loadDoctors()
       } else setError(res.message)
     } catch(e) { setError('Something went wrong.') }
@@ -163,7 +162,7 @@ export default function Doctors() {
     </div>
   )
 
-  const DoctorFields = ({ d, on }) => (
+  const DoctorFields = ({ d, on, minimal = false }) => (
     <div className="grid grid-cols-2 gap-3">
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">First Name *</label>
@@ -176,35 +175,8 @@ export default function Doctors() {
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Qualification *</label>
-        <input required value={d.qualification} onChange={e => on('qualification', e.target.value)}
-          placeholder="e.g. MBBS, MD"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Specialization *</label>
-        <input required value={d.specialization} onChange={e => on('specialization', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Registration No. *</label>
-        <input required value={d.registrationNumber} onChange={e => on('registrationNumber', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Experience (years)</label>
-        <input type="number" value={d.experienceYears}
-          onChange={e => on('experienceYears', parseInt(e.target.value) || 0)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">Mobile *</label>
         <input required value={d.mobileNumber} onChange={e => on('mobileNumber', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-        <input type="email" value={d.email} onChange={e => on('email', e.target.value)}
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
       </div>
       <div>
@@ -221,6 +193,36 @@ export default function Doctors() {
           onChange={e => on('consultationFee', parseFloat(e.target.value) || 0)}
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
       </div>
+
+      {!minimal && <>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Qualification</label>
+          <input value={d.qualification} onChange={e => on('qualification', e.target.value)}
+            placeholder="e.g. MBBS, MD"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Specialization</label>
+          <input value={d.specialization} onChange={e => on('specialization', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Registration No.</label>
+          <input value={d.registrationNumber} onChange={e => on('registrationNumber', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Experience (years)</label>
+          <input type="number" value={d.experienceYears}
+            onChange={e => on('experienceYears', parseInt(e.target.value) || 0)}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+          <input type="email" value={d.email} onChange={e => on('email', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+      </>}
     </div>
   )
   const overlay = {
@@ -285,7 +287,9 @@ export default function Doctors() {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900 text-sm">{doc.fullName}</div>
-                    <div className="text-xs text-gray-500">{doc.qualification}</div>
+                    {doc.qualification
+                      ? <div className="text-xs text-gray-500">{doc.qualification}</div>
+                      : <div className="text-xs text-amber-600">Details incomplete</div>}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 items-end">
@@ -299,9 +303,9 @@ export default function Doctors() {
                   </button>
                 </div>
               </div>
-              <div className="flex gap-2 mb-2">
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{doc.specialization}</span>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{doc.departmentName}</span>
+              <div className="flex gap-2 mb-2 flex-wrap">
+                {doc.specialization && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{doc.specialization}</span>}
+                {doc.departmentName && <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{doc.departmentName}</span>}
               </div>
               <div className="flex justify-between text-xs text-gray-500">
                 <span>📞 {doc.mobileNumber}</span>
@@ -361,14 +365,11 @@ export default function Doctors() {
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-5">
               {error && <div className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</div>}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Doctor Information</h4>
-                <DoctorFields d={form} on={f} />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Working Schedule</h4>
-                <SchedEditor list={schedules} set={setSchedules} />
-              </div>
+              <DoctorFields d={form} on={f} minimal />
+              <p className="text-xs text-gray-500">
+                Just the basics to get started. Qualification, registration number, working
+                hours and fees can be added later from the doctor’s <span className="font-medium">Edit</span> screen.
+              </p>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setShowForm(false)}
                   className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm">Cancel</button>

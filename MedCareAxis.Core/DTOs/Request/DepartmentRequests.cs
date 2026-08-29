@@ -19,12 +19,10 @@ public class CreateDoctorRequest
     public string FirstName { get; set; } = string.Empty;
     [Required]
     public string LastName { get; set; } = string.Empty;
-    [Required]
+    // Optional at creation — the admin can fill these in later from the doctor's Edit screen.
     public string Qualification { get; set; } = string.Empty;
-    [Required]
     public string Specialization { get; set; } = string.Empty;
     public string? SubSpecialization { get; set; }
-    [Required]
     public string RegistrationNumber { get; set; } = string.Empty;
     public int ExperienceYears { get; set; }
     [Required]
