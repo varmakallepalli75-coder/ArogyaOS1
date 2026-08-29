@@ -55,9 +55,10 @@ const DoctorFields = ({ d, on, departments, minimal = false }) => (
       </select>
     </div>
     <div>
-      <label className="block text-xs font-medium text-gray-600 mb-1">Consultation Fee (Rs)</label>
-      <input type="number" value={d.consultationFee}
-        onChange={e => on('consultationFee', parseFloat(e.target.value) || 0)}
+      <label className="block text-xs font-medium text-gray-600 mb-1">Consultation Fee (₹)</label>
+      <input type="text" inputMode="decimal" value={d.consultationFee}
+        onChange={e => on('consultationFee', e.target.value.replace(/[^\d.]/g, ''))}
+        placeholder="e.g. 500"
         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
     </div>
 
@@ -80,8 +81,9 @@ const DoctorFields = ({ d, on, departments, minimal = false }) => (
       </div>
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">Experience (years)</label>
-        <input type="number" value={d.experienceYears}
-          onChange={e => on('experienceYears', parseInt(e.target.value) || 0)}
+        <input type="text" inputMode="numeric" value={d.experienceYears}
+          onChange={e => on('experienceYears', e.target.value.replace(/[^\d]/g, ''))}
+          placeholder="e.g. 8"
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
       </div>
       <div>
@@ -109,8 +111,8 @@ export default function Doctors() {
 
   const emptyForm = {
     firstName: '', lastName: '', qualification: '', specialization: '',
-    registrationNumber: '', experienceYears: 0, mobileNumber: '',
-    email: '', departmentId: '', consultationFee: 0, followUpFee: 0, employmentType: 0
+    registrationNumber: '', experienceYears: '', mobileNumber: '',
+    email: '', departmentId: '', consultationFee: '', followUpFee: '', employmentType: 0
   }
   const [form, setForm] = useState(emptyForm)
   const [editForm, setEditForm] = useState(emptyForm)
@@ -158,6 +160,10 @@ export default function Doctors() {
   }
   const buildPayload = (f, s) => ({
     ...f,
+    // Fee / experience inputs hold free text while typing — coerce to numbers on submit.
+    consultationFee: Number(f.consultationFee) || 0,
+    followUpFee: Number(f.followUpFee) || 0,
+    experienceYears: parseInt(f.experienceYears, 10) || 0,
     schedules: s.filter(x => x.enabled).map(x => ({
       dayOfWeek: x.dayOfWeek, startTime: x.startTime, endTime: x.endTime,
       slotDurationMinutes: x.slotDurationMinutes, maxPatients: x.maxPatients
@@ -204,13 +210,13 @@ export default function Doctors() {
       lastName: parts.slice(1).join(' ') || '',
       qualification: doc.qualification,
       specialization: doc.specialization,
-      registrationNumber: '',
-      experienceYears: 0,
+      registrationNumber: doc.registrationNumber || '',
+      experienceYears: doc.experienceYears || '',
       mobileNumber: doc.mobileNumber,
-      email: '',
+      email: doc.email || '',
       departmentId: doc.departmentId || '',
-      consultationFee: doc.consultationFee,
-      followUpFee: 0,
+      consultationFee: doc.consultationFee || '',
+      followUpFee: doc.followUpFee || '',
       employmentType: 0
     })
     setEditSchedules([...defaultSched])
