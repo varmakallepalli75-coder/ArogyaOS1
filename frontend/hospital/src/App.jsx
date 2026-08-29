@@ -32,6 +32,7 @@ import SuperAdminPayments from './pages/superadmin/SuperAdminPayments'
 import SuperAdminAuditLogs from './pages/superadmin/SuperAdminAuditLogs'
 import SuperAdminRenewals from './pages/superadmin/SuperAdminRenewals'
 import SuperAdminSettings from './pages/superadmin/SuperAdminSettings'
+import Landing from './pages/Landing'
 
 const SuperAdminRoute = ({ children }) => {
   const { user } = useAuth()
@@ -115,7 +116,7 @@ function AppRoutes() {
       <Route path="/super-admin/renewals"           element={<SuperAdminRoute><SuperAdminRenewals /></SuperAdminRoute>} />
       <Route path="/super-admin/settings"           element={<SuperAdminRoute><SuperAdminSettings /></SuperAdminRoute>} />
 
-      <Route path="/"  element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Landing />} />
       <Route path="*"  element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )
