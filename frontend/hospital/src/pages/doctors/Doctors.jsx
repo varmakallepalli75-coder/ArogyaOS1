@@ -3,6 +3,96 @@ import { departmentService } from '../../services/departmentService'
 
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+// Defined at module scope (not inside Doctors) so their identity is stable across
+// renders — otherwise every keystroke remounts the inputs and steals focus.
+const SchedEditor = ({ list, set }) => (
+  <div className="space-y-2">
+    {list.map((s, i) => (
+      <div key={i} className="flex items-center gap-2">
+        <input type="checkbox" checked={s.enabled}
+          className="w-4 h-4 accent-emerald-600"
+          onChange={e => set(p => p.map((x, j) => j === i ? {...x, enabled: e.target.checked} : x))} />
+        <span className="text-sm w-10 font-medium text-gray-700">{days[s.dayOfWeek]}</span>
+        <input type="time" value={s.startTime} disabled={!s.enabled}
+          className="px-2 py-1 border border-gray-200 rounded text-sm disabled:opacity-40"
+          onChange={e => set(p => p.map((x, j) => j === i ? {...x, startTime: e.target.value} : x))} />
+        <span className="text-gray-400 text-xs">to</span>
+        <input type="time" value={s.endTime} disabled={!s.enabled}
+          className="px-2 py-1 border border-gray-200 rounded text-sm disabled:opacity-40"
+          onChange={e => set(p => p.map((x, j) => j === i ? {...x, endTime: e.target.value} : x))} />
+        <span className="text-xs text-gray-500">Max:</span>
+        <input type="number" value={s.maxPatients} disabled={!s.enabled}
+          className="w-14 px-2 py-1 border border-gray-200 rounded text-sm disabled:opacity-40"
+          onChange={e => set(p => p.map((x, j) => j === i ? {...x, maxPatients: parseInt(e.target.value) || 20} : x))} />
+      </div>
+    ))}
+  </div>
+)
+
+const DoctorFields = ({ d, on, departments, minimal = false }) => (
+  <div className="grid grid-cols-2 gap-3">
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">First Name *</label>
+      <input required value={d.firstName} onChange={e => on('firstName', e.target.value)}
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+    </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">Last Name *</label>
+      <input required value={d.lastName} onChange={e => on('lastName', e.target.value)}
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+    </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">Mobile *</label>
+      <input required value={d.mobileNumber} onChange={e => on('mobileNumber', e.target.value)}
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+    </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">Department *</label>
+      <select required value={d.departmentId} onChange={e => on('departmentId', e.target.value)}
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <option value="">Select department</option>
+        {departments.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
+      </select>
+    </div>
+    <div>
+      <label className="block text-xs font-medium text-gray-600 mb-1">Consultation Fee (Rs)</label>
+      <input type="number" value={d.consultationFee}
+        onChange={e => on('consultationFee', parseFloat(e.target.value) || 0)}
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+    </div>
+
+    {!minimal && <>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Qualification</label>
+        <input value={d.qualification} onChange={e => on('qualification', e.target.value)}
+          placeholder="e.g. MBBS, MD"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Specialization</label>
+        <input value={d.specialization} onChange={e => on('specialization', e.target.value)}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Registration No.</label>
+        <input value={d.registrationNumber} onChange={e => on('registrationNumber', e.target.value)}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Experience (years)</label>
+        <input type="number" value={d.experienceYears}
+          onChange={e => on('experienceYears', parseInt(e.target.value) || 0)}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+        <input type="email" value={d.email} onChange={e => on('email', e.target.value)}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+    </>}
+  </div>
+)
+
 export default function Doctors() {
   const [doctors, setDoctors] = useState([])
   const [departments, setDepartments] = useState([])
@@ -138,93 +228,6 @@ export default function Doctors() {
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
   const ef = (k, v) => setEditForm(p => ({ ...p, [k]: v }))
-  const SchedEditor = ({ list, set }) => (
-    <div className="space-y-2">
-      {list.map((s, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <input type="checkbox" checked={s.enabled}
-            className="w-4 h-4 accent-emerald-600"
-            onChange={e => set(p => p.map((x, j) => j === i ? {...x, enabled: e.target.checked} : x))} />
-          <span className="text-sm w-10 font-medium text-gray-700">{days[s.dayOfWeek]}</span>
-          <input type="time" value={s.startTime} disabled={!s.enabled}
-            className="px-2 py-1 border border-gray-200 rounded text-sm disabled:opacity-40"
-            onChange={e => set(p => p.map((x, j) => j === i ? {...x, startTime: e.target.value} : x))} />
-          <span className="text-gray-400 text-xs">to</span>
-          <input type="time" value={s.endTime} disabled={!s.enabled}
-            className="px-2 py-1 border border-gray-200 rounded text-sm disabled:opacity-40"
-            onChange={e => set(p => p.map((x, j) => j === i ? {...x, endTime: e.target.value} : x))} />
-          <span className="text-xs text-gray-500">Max:</span>
-          <input type="number" value={s.maxPatients} disabled={!s.enabled}
-            className="w-14 px-2 py-1 border border-gray-200 rounded text-sm disabled:opacity-40"
-            onChange={e => set(p => p.map((x, j) => j === i ? {...x, maxPatients: parseInt(e.target.value) || 20} : x))} />
-        </div>
-      ))}
-    </div>
-  )
-
-  const DoctorFields = ({ d, on, minimal = false }) => (
-    <div className="grid grid-cols-2 gap-3">
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">First Name *</label>
-        <input required value={d.firstName} onChange={e => on('firstName', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Last Name *</label>
-        <input required value={d.lastName} onChange={e => on('lastName', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Mobile *</label>
-        <input required value={d.mobileNumber} onChange={e => on('mobileNumber', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Department *</label>
-        <select required value={d.departmentId} onChange={e => on('departmentId', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <option value="">Select department</option>
-          {departments.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
-        </select>
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Consultation Fee (Rs)</label>
-        <input type="number" value={d.consultationFee}
-          onChange={e => on('consultationFee', parseFloat(e.target.value) || 0)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-      </div>
-
-      {!minimal && <>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Qualification</label>
-          <input value={d.qualification} onChange={e => on('qualification', e.target.value)}
-            placeholder="e.g. MBBS, MD"
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Specialization</label>
-          <input value={d.specialization} onChange={e => on('specialization', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Registration No.</label>
-          <input value={d.registrationNumber} onChange={e => on('registrationNumber', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Experience (years)</label>
-          <input type="number" value={d.experienceYears}
-            onChange={e => on('experienceYears', parseInt(e.target.value) || 0)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-          <input type="email" value={d.email} onChange={e => on('email', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-        </div>
-      </>}
-    </div>
-  )
   const overlay = {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -365,7 +368,7 @@ export default function Doctors() {
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-5">
               {error && <div className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</div>}
-              <DoctorFields d={form} on={f} minimal />
+              <DoctorFields d={form} on={f} departments={departments} minimal />
               <p className="text-xs text-gray-500">
                 Just the basics to get started. Qualification, registration number, working
                 hours and fees can be added later from the doctor’s <span className="font-medium">Edit</span> screen.
@@ -394,7 +397,7 @@ export default function Doctors() {
               {error && <div className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</div>}
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Doctor Information</h4>
-                <DoctorFields d={editForm} on={ef} />
+                <DoctorFields d={editForm} on={ef} departments={departments} />
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Working Schedule</h4>
