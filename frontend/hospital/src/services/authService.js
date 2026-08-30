@@ -80,6 +80,24 @@ export const authService = {
     return raw ? JSON.parse(raw) : null
   },
 
+  saveUser: (user) => {
+    const key = getRole() === 'superadmin' ? 'sa_user' : 'user'
+    localStorage.setItem(key, JSON.stringify(user))
+  },
+
+  // Pull the caller's live role / permissions / modules from the server so an
+  // admin's changes take effect without the user logging out and back in.
+  refreshUser: async () => {
+    try {
+      const res = await api.get('/me')
+      if (res.data?.success && res.data.data) {
+        authService.saveUser(res.data.data)
+        return res.data.data
+      }
+    } catch { /* offline or expired — keep the cached user */ }
+    return null
+  },
+
   isLoggedIn: () => {
     const role = getRole()
     return !!(role === 'superadmin'

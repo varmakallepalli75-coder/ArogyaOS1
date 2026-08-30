@@ -11,6 +11,20 @@ export const AuthProvider = ({ children }) => {
     const savedUser = authService.getUser()
     if (savedUser) setUser(savedUser)
     setLoading(false)
+
+    // Re-hydrate role / permissions / modules from the server, so changes an
+    // admin makes to this user reflect on the next load without a re-login.
+    if (savedUser) {
+      authService.refreshUser().then(fresh => { if (fresh) setUser(fresh) })
+    }
+
+    const onFocus = () => {
+      if (authService.isLoggedIn()) {
+        authService.refreshUser().then(fresh => { if (fresh) setUser(fresh) })
+      }
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [])
 
   const login = async (email, password) => {
