@@ -107,5 +107,16 @@ public class DepartmentController : ControllerBase
         return Ok(result);
     }
 
+    // ─── DELETE api/department/doctors/{id} ───────────
+    [HttpDelete("doctors/{id}")]
+    public async Task<IActionResult> DeleteDoctor(Guid id)
+    {
+        var hospitalId = GetHospitalId();
+        if (hospitalId == Guid.Empty) return Unauthorized();
+        var result = await _departmentService.DeleteDoctorAsync(id, hospitalId);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
     private Guid GetHospitalId() => User.GetHospitalId();
 }

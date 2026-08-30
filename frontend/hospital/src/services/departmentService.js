@@ -35,5 +35,10 @@ export const departmentService = {
   updateAvailability: async (id, isAvailable) => {
     const res = await api.put(`/department/doctors/${id}/availability`, isAvailable)
     return res.data
+  },
+
+  deleteDoctor: async (id) => {
+    const res = await api.delete(`/department/doctors/${id}`)
+    return res.data
   }
 }

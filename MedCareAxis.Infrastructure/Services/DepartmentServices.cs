@@ -16,6 +16,7 @@ public interface IDepartmentService
     Task<ApiResponse<DoctorResponse>> CreateDoctorAsync(CreateDoctorRequest request, Guid hospitalId);
     Task<ApiResponse<bool>> UpdateDoctorAvailabilityAsync(Guid doctorId, bool isAvailable, Guid hospitalId);
     Task<ApiResponse<DoctorResponse>> UpdateDoctorAsync(Guid id, UpdateDoctorRequest request, Guid hospitalId);
+    Task<ApiResponse<bool>> DeleteDoctorAsync(Guid id, Guid hospitalId);
 }
 
 public class DepartmentService : IDepartmentService
@@ -218,6 +219,42 @@ public class DepartmentService : IDepartmentService
 
         return ApiResponse<bool>.Ok(true,
             $"Doctor marked as {(isAvailable ? "Available" : "Unavailable")}");
+    }
+
+    public async Task<ApiResponse<bool>> DeleteDoctorAsync(Guid id, Guid hospitalId)
+    {
+        var doctor = await _context.Doctors
+            .FirstOrDefaultAsync(d => d.Id == id && d.HospitalId == hospitalId);
+
+        if (doctor == null)
+            return ApiResponse<bool>.Fail("Doctor not found");
+
+        // If the doctor is referenced by clinical history, keep the row and just
+        // deactivate it (GetDoctorsAsync already filters on IsActive).
+        var hasHistory =
+            await _context.Appointments.AnyAsync(a => a.DoctorId == id) ||
+            await _context.OPDVisits.AnyAsync(v => v.DoctorId == id) ||
+            await _context.Prescriptions.AnyAsync(p => p.DoctorId == id);
+
+        if (hasHistory)
+        {
+            doctor.IsActive = false;
+            doctor.IsAvailable = false;
+            doctor.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true,
+                "This doctor has appointment or prescription history, so they were removed from the active list and their past records were kept.");
+        }
+
+        // No history — safe to delete outright, along with schedules and leaves.
+        _context.DoctorSchedules.RemoveRange(
+            _context.DoctorSchedules.Where(s => s.DoctorId == id));
+        _context.DoctorLeaves.RemoveRange(
+            _context.DoctorLeaves.Where(l => l.DoctorId == id));
+        _context.Doctors.Remove(doctor);
+        await _context.SaveChangesAsync();
+
+        return ApiResponse<bool>.Ok(true, "Doctor removed.");
     }
     public async Task<ApiResponse<DoctorResponse>> UpdateDoctorAsync(
     Guid id, UpdateDoctorRequest request, Guid hospitalId)

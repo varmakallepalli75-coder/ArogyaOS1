@@ -232,6 +232,18 @@ export default function Doctors() {
     } catch(e) {}
   }
 
+  const handleDelete = async (doc) => {
+    if (!window.confirm(`Remove ${doc.fullName}? This cannot be undone.`)) return
+    setError('')
+    try {
+      const res = await departmentService.deleteDoctor(doc.id)
+      if (res.success) {
+        setSuccess(res.message || 'Doctor removed')
+        loadDoctors()
+      } else setError(res.message)
+    } catch(e) { setError('Something went wrong.') }
+  }
+
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }))
   const ef = (k, v) => setEditForm(p => ({ ...p, [k]: v }))
   const overlay = {
@@ -309,6 +321,10 @@ export default function Doctors() {
                   <button onClick={() => toggleAvail(doc)}
                     className={`text-xs px-2 py-0.5 rounded-full ${doc.isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                     {doc.isAvailable ? 'Available' : 'Unavailable'}
+                  </button>
+                  <button onClick={() => handleDelete(doc)}
+                    className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-700">
+                    Remove
                   </button>
                 </div>
               </div>
