@@ -6,6 +6,7 @@ import { appointmentService } from '../../services/appointmentService'
 import { billingService } from '../../services/billingService'
 import { labService } from '../../services/labService'
 import { departmentService } from '../../services/departmentService'
+import api from '../../services/api'
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']
 const genders = ['Male', 'Female', 'Other', 'PreferNotToSay']
@@ -238,6 +239,97 @@ function LabTab({ patientId }) {
   )
 }
 
+// ─── History Tab: Consultations & Prescriptions ──────────────────────────────
+function ConsultationsTab({ patientId }) {
+  const [visits, setVisits] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [denied, setDenied] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      setLoading(true); setDenied(false)
+      try {
+        const res = await api.get(`/opd/patient/${patientId}/history?limit=50`)
+        if (!cancelled && res.data?.success) setVisits(res.data.data || [])
+      } catch (e) {
+        if (!cancelled && e.response?.status === 403) setDenied(true)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [patientId])
+
+  if (loading) return <div className="py-10 text-center text-gray-400 text-sm">Loading...</div>
+  if (denied) return <div className="py-10 text-center text-gray-400 text-sm">You don't have permission to view consultations.</div>
+  if (visits.length === 0) return <div className="py-10 text-center text-gray-400 text-sm">No consultations recorded</div>
+
+  const fmt = d => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+
+  return (
+    <div className="space-y-4">
+      {visits.map(v => (
+        <div key={v.visitId} className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-gray-900">{v.diagnosis || 'Consultation'}</div>
+              <div className="text-xs text-gray-500 mt-0.5">
+                {fmt(v.visitDate)}{v.doctorName && <span> · Dr. {v.doctorName}</span>}
+              </div>
+            </div>
+            {v.prescriptionNumber && (
+              <span className="text-xs font-medium text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded-full flex-shrink-0">
+                Rx: {v.prescriptionNumber}
+              </span>
+            )}
+          </div>
+
+          {v.chiefComplaint && (
+            <p className="text-xs text-gray-600 mt-2"><span className="text-gray-400">Complaint:</span> {v.chiefComplaint}</p>
+          )}
+          {(v.bloodPressure || v.pulseRate || v.temperature) && (
+            <p className="text-xs text-gray-600 mt-1">
+              <span className="text-gray-400">Vitals:</span>{' '}
+              {[v.bloodPressure && `BP ${v.bloodPressure}`, v.pulseRate && `Pulse ${v.pulseRate}`, v.temperature && `Temp ${v.temperature}`].filter(Boolean).join(' · ')}
+            </p>
+          )}
+          {v.advice && (
+            <p className="text-xs text-gray-600 mt-1"><span className="text-gray-400">Advice:</span> {v.advice}</p>
+          )}
+
+          {v.medicines?.length > 0 && (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-left text-gray-400 border-b border-gray-200">
+                    <th className="py-1 pr-3 font-medium">Medicine</th>
+                    <th className="py-1 pr-3 font-medium">Dosage</th>
+                    <th className="py-1 pr-3 font-medium">Frequency</th>
+                    <th className="py-1 pr-3 font-medium">Duration</th>
+                    <th className="py-1 font-medium">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {v.medicines.map((m, i) => (
+                    <tr key={i} className="border-b border-gray-100 last:border-0 text-gray-700">
+                      <td className="py-1 pr-3 font-medium">{m.medicineName}</td>
+                      <td className="py-1 pr-3">{m.dosage}</td>
+                      <td className="py-1 pr-3">{m.frequency}</td>
+                      <td className="py-1 pr-3">{m.duration}</td>
+                      <td className="py-1">{m.instructions}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Book Appointment Modal ───────────────────────────────────────────────────
 function BookAppointmentModal({ patient, onClose, onSuccess }) {
   const [departments, setDepartments]   = useState([])
@@ -314,13 +406,6 @@ function BookAppointmentModal({ patient, onClose, onSuccess }) {
 
   const f = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
   const minDateTime = new Date(Date.now() + 5 * 60000).toISOString().slice(0, 16)
-  const defaultDateTime = (() => {
-    const now = new Date()
-    now.setMinutes(now.getMinutes() + 10)
-    // Format as local datetime string yyyy-MM-ddTHH:mm
-    const pad = n => String(n).padStart(2, '0')
-    return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`
-  })()
 
   // Step label breadcrumb
   const Breadcrumb = () => (
@@ -618,10 +703,11 @@ export default function PatientProfile() {
   )
 
   const TABS = [
-    { id: 'info',         label: 'Profile' },
-    { id: 'appointments', label: 'Appointments' },
-    { id: 'bills',        label: 'Bills' },
-    { id: 'lab',          label: 'Lab Results' },
+    { id: 'info',          label: 'Profile' },
+    { id: 'appointments',  label: 'Appointments' },
+    { id: 'consultations', label: 'Consultations' },
+    { id: 'bills',         label: 'Bills' },
+    { id: 'lab',           label: 'Lab Results' },
   ]
 
   return (
@@ -951,6 +1037,13 @@ export default function PatientProfile() {
             </button>
           </div>
           <AppointmentsTab patientId={id} />
+        </div>
+      )}
+
+      {activeTab === 'consultations' && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+          <h3 className="text-sm font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-100">Consultations &amp; Prescriptions</h3>
+          <ConsultationsTab patientId={id} />
         </div>
       )}
 

@@ -235,6 +235,10 @@ export default function OPD() {
   const [newMed, setNewMed]             = useState({
     medicineName: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: 1
   })
+  // True when the selected patient already has a saved consultation for this
+  // appointment — Save then amends it in place instead of creating a duplicate.
+  const [isAmending, setIsAmending]   = useState(false)
+  const [existingLabs, setExistingLabs] = useState([])   // lab tests already ordered on this visit (read-only)
 
   useEffect(() => { loadQueue() }, [])
 
@@ -253,6 +257,8 @@ export default function OPD() {
     setAiSuggestions(null)
     setPrescription([])
     setLabTests([])
+    setExistingLabs([])
+    setIsAmending(false)
     setSuccess('')
     setVitals({ bloodPressure: '', pulseRate: '', temperature: '',
       spO2: '', weightKg: '', heightCm: '', bloodGlucose: '', respiratoryRate: '' })
@@ -262,12 +268,40 @@ export default function OPD() {
     setCreateFollowUp(false)
 
     try {
-      const [patRes, histRes] = await Promise.all([
+      const [patRes, histRes, consultRes] = await Promise.all([
         patientService.getById(apt.patientId),
-        api.get(`/opd/patient/${apt.patientId}/history?limit=5`)
+        api.get(`/opd/patient/${apt.patientId}/history?limit=5`),
+        api.get(`/opd/consultation/${apt.id}`).catch(() => null)
       ])
       if (patRes.success) setPatient(patRes.data)
       if (histRes.data?.success) setPastVisits(histRes.data.data || [])
+
+      // Already consulted for this appointment → load it so Save amends it.
+      const c = consultRes?.data?.success ? consultRes.data.data : null
+      if (c) {
+        setIsAmending(true)
+        setVitals({
+          bloodPressure: c.bloodPressure || '', pulseRate: c.pulseRate || '',
+          temperature: c.temperature || '', spO2: c.spO2 || '',
+          weightKg: c.weightKg || '', heightCm: c.heightCm || '',
+          bloodGlucose: c.bloodGlucose || '', respiratoryRate: c.respiratoryRate || ''
+        })
+        const fu = c.followUpDate ? new Date(c.followUpDate) : null
+        setConsultation({
+          chiefComplaint: c.chiefComplaint || apt.chiefComplaint || '',
+          historyOfPresentIllness: c.historyOfPresentIllness || '',
+          clinicalFindings: c.clinicalFindings || '',
+          diagnosis: c.diagnosis || '', advice: c.advice || '',
+          followUpDate: fu && !isNaN(fu) ? fu.toISOString().slice(0, 10) : ''
+        })
+        setPrescription((c.medicines || []).map(m => ({
+          medicineName: m.medicineName, genericName: m.genericName || '',
+          dosage: m.dosage || '', frequency: m.frequency || '',
+          duration: m.duration || '', instructions: m.instructions || '',
+          quantity: m.quantity || 1, isSubstitutionAllowed: true
+        })))
+        setExistingLabs(c.labTests || [])
+      }
     } catch(e) { console.error(e) }
 
     await appointmentService.updateStatus(apt.id, 2)
@@ -336,7 +370,7 @@ export default function OPD() {
 
       if (res.data?.success) {
         const rxNumber = res.data.data?.prescriptionNumber
-        setSuccess(`Consultation saved! Rx: ${rxNumber}${createFollowUp ? ' · Follow-up appointment created.' : ''}`)
+        setSuccess(`${isAmending ? 'Consultation updated' : 'Consultation saved'}! Rx: ${rxNumber}${createFollowUp ? ' · Follow-up appointment created.' : ''}`)
 
         if (andPrint && rxNumber) {
           const printWindow = window.open('', '_blank')
@@ -348,6 +382,7 @@ export default function OPD() {
         }
 
         setSelectedApt(null); setPatient(null); setPrescription([]); setLabTests([])
+        setExistingLabs([]); setIsAmending(false)
         setVitals({ bloodPressure: '', pulseRate: '', temperature: '',
           spO2: '', weightKg: '', heightCm: '', bloodGlucose: '', respiratoryRate: '' })
         setConsultation({ chiefComplaint: '', historyOfPresentIllness: '',
@@ -912,14 +947,22 @@ export default function OPD() {
                 {saveError}
               </div>
             )}
+            {isAmending && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-2 rounded-xl text-xs">
+                Editing an already-saved consultation for this visit. Saving updates it — no duplicate is created.
+                {existingLabs.length > 0 && (
+                  <span className="block mt-1">Lab tests already ordered: {existingLabs.join(', ')}</span>
+                )}
+              </div>
+            )}
             <div className="flex gap-3 pb-4">
               <button onClick={() => handleSave(false)} disabled={saving}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl font-semibold disabled:opacity-50">
-                {saving ? 'Saving...' : '✅ Save & Complete'}
+                {saving ? 'Saving...' : (isAmending ? '✅ Update Consultation' : '✅ Save & Complete')}
               </button>
               <button onClick={() => handleSave(true)} disabled={saving}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl font-semibold disabled:opacity-50">
-                🖨 Save & Print Rx
+                🖨 {isAmending ? 'Update & Print Rx' : 'Save & Print Rx'}
               </button>
             </div>
           </>
