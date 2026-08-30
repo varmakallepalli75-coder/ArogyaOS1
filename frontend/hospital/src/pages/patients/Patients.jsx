@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { patientService } from '../../services/patientService'
+import { authService } from '../../services/authService'
+
+const PORTAL_URL = 'https://portal.medcareaxis.com'
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']
 const genders = ['Male', 'Female', 'Other', 'PreferNotToSay']
@@ -18,6 +21,24 @@ export default function Patients() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const navigate = useNavigate()
+
+  const hospitalName = authService.getUser()?.hospitalName || 'our hospital'
+
+  // Opens WhatsApp to the patient with a pre-filled message pointing at the
+  // patient portal. Uses the "All my records" (unified) login, so no hospital
+  // code is needed — the patient signs in with their mobile number + date of birth.
+  const sendPortalLink = (p, e) => {
+    e.stopPropagation()
+    const digits = (p.mobileNumber || '').replace(/\D/g, '')
+    if (digits.length < 10) { setError('This patient has no valid mobile number on file.'); return }
+    const wa = digits.length === 10 ? `91${digits}` : digits
+    const msg =
+      `Hello ${p.fullName}, you can now view your prescriptions, lab reports and visit ` +
+      `history from ${hospitalName} online.\n\n` +
+      `Open: ${PORTAL_URL}\n\n` +
+      `Tap "All my records", then sign in with this mobile number and your date of birth.`
+    window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
 
   const [form, setForm] = useState({
     firstName: '', middleName: '', lastName: '',
@@ -146,6 +167,7 @@ export default function Patients() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Blood</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Insurance</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">City</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Portal</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -182,6 +204,14 @@ export default function Patients() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">{p.city}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={e => sendPortalLink(p, e)}
+                      className="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-medium whitespace-nowrap"
+                    >
+                      Send link
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
