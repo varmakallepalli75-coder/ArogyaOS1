@@ -74,11 +74,11 @@ export default function Reports() {
   const maxTrend = trend.length ? Math.max(...trend.map(d => d.appointments), 1) : 1
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="mca-module space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-        <p className="text-sm text-gray-500 mt-0.5">All hospital data is permanently saved. View any date range below.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Accounts & Reports</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Review clinical activity, collections and performance by date.</p>
       </div>
 
       {/* Date range + quick picks */}

@@ -4,6 +4,7 @@ import { patientService } from '../../services/patientService'
 import { labService } from '../../services/labService'
 import { aiService } from '../../services/aiService'
 import api from '../../services/api'
+import CareJourney from '../../components/workflow/CareJourney'
 
 // ─── Vital range validation ───────────────────────────────
 const VITAL_RANGES = {
@@ -544,10 +545,10 @@ export default function OPD() {
   }
 
   return (
-    <div className="flex h-full gap-4" style={{ height: 'calc(100vh - 100px)' }}>
+    <div className="mca-consultation flex h-full gap-4" style={{ height: 'calc(100vh - 100px)' }}>
 
       {/* ─── Left: Queue ───────────────────────────────────── */}
-      <div className="w-72 bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col flex-shrink-0">
+      <div className="mca-consultation-queue w-72 bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col flex-shrink-0">
         <div className="p-4 border-b border-gray-100">
           <h3 className="font-semibold text-gray-800">Today's OPD Queue</h3>
           <p className="text-xs text-gray-500 mt-0.5">{queue.length} patients</p>
@@ -622,7 +623,8 @@ export default function OPD() {
       </div>
 
       {/* ─── Right: Consultation ──────────────────────────── */}
-      <div className="flex-1 overflow-y-auto space-y-4">
+      <div className="mca-consultation-workspace flex-1 overflow-y-auto space-y-4">
+        <CareJourney current="consultation" />
         {!selectedApt ? (
           <div className="flex flex-col items-center justify-center h-full bg-white rounded-xl border border-gray-100">
             <div className="text-5xl mb-3">🏥</div>

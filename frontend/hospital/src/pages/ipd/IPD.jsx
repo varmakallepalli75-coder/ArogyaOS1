@@ -242,12 +242,12 @@ export default function IPD() {
   const occupiedCount = wards.reduce((s, w) => s + w.occupiedBeds, 0)
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
+    <div className="mca-module space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">IPD & Beds</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Inpatient Department — Admissions & Ward Management</p>
+          <h1 className="text-xl font-bold text-gray-900">Admissions & Beds</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Admit patients, assign beds and manage wards</p>
         </div>
         <button onClick={() => { setShowAdmit(true); setError('') }}
           className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2">
@@ -256,7 +256,7 @@ export default function IPD() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="mca-module-stats grid grid-cols-4 gap-4">
         {[
           { label: 'Total Beds', value: totalBeds, icon: '🛏️', color: 'bg-slate-50' },
           { label: 'Available', value: availableBedCount, icon: '✅', color: 'bg-emerald-50' },

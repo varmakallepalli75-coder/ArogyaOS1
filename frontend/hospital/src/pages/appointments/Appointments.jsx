@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { appointmentService } from '../../services/appointmentService'
 import { patientService } from '../../services/patientService'
 import { departmentService } from '../../services/departmentService'
+import CareJourney from '../../components/workflow/CareJourney'
 
 const statusColors = {
   Scheduled: 'bg-blue-100 text-blue-700',
@@ -30,7 +31,7 @@ export default function Appointments() {
   const [patientResults, setPatientResults] = useState([])
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(() => new URLSearchParams(window.location.search).get('action') === 'book')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -149,6 +150,7 @@ export default function Appointments() {
 
   return (
     <div className="space-y-4">
+      <CareJourney current="queue" />
 
       {/* Header */}
       <div className="flex items-center justify-between">

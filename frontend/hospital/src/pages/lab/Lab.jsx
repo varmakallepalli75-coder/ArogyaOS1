@@ -275,19 +275,19 @@ export default function Lab() {
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="mca-module space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Laboratory</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage lab orders, tests and results</p>
+          <p className="text-sm text-gray-500 mt-0.5">Track orders, samples and results in one place</p>
         </div>
         <button
           onClick={tab === 'orders' ? openNewOrder : () => setShowNewTest(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-xl text-sm font-medium hover:bg-violet-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition"
         >
           <span className="text-lg leading-none">+</span>
-          {tab === 'orders' ? 'New Order' : 'Add Test'}
+          {tab === 'orders' ? 'New Lab Order' : 'Add Test'}
         </button>
       </div>
 
@@ -536,7 +536,7 @@ export default function Lab() {
               <button
                 onClick={submitOrder}
                 disabled={saving}
-                className="px-5 py-2 bg-violet-600 text-white rounded-xl text-sm font-medium hover:bg-violet-700 disabled:opacity-50"
+                className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50"
               >
                 {saving ? 'Creating...' : 'Create Order'}
               </button>
@@ -883,7 +883,7 @@ export default function Lab() {
 
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setShowNewTest(false)} className="px-4 py-2 text-sm text-gray-600">Cancel</button>
-              <button onClick={submitTest} disabled={saving} className="px-5 py-2 bg-violet-600 text-white rounded-xl text-sm font-medium hover:bg-violet-700 disabled:opacity-50">
+              <button onClick={submitTest} disabled={saving} className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
                 {saving ? 'Saving...' : 'Add Test'}
               </button>
             </div>

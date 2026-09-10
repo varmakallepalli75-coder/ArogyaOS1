@@ -2,29 +2,31 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
-import { Activity, BedDouble, Bell, CalendarDays, ChevronRight, CircleHelp, CreditCard, FileBarChart, FlaskConical, LayoutDashboard, LogOut, Menu, Pill, Plus, Settings, Stethoscope, Users, WalletCards } from 'lucide-react'
+import { Activity, BedDouble, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileBarChart, FlaskConical, LayoutDashboard, LogOut, Menu, MoreHorizontal, Pill, Plus, Settings, Stethoscope, Users, WalletCards } from 'lucide-react'
 
 const ALL_NAV = [
   { section: 'Main' },
-  { path: '/dashboard',    icon: LayoutDashboard,   label: 'Overview' },
+  { path: '/dashboard',    icon: LayoutDashboard,   label: 'Today' },
   { path: '/patients',     icon: Users,  label: 'Patients',     perm: 'permPatients' },
-  { path: '/appointments', icon: CalendarDays,  label: 'Appointments', perm: 'permAppointments' },
-  { path: '/referrals',    icon: ChevronRight,   label: 'Referrals',    perm: 'permPatients' },
+  { path: '/appointments', icon: CalendarDays,  label: 'Today’s Queue', perm: 'permAppointments' },
+  { path: '/referrals',    icon: ChevronRight,   label: 'Patient Referrals',    perm: 'permPatients' },
   { section: 'Clinical' },
-  { path: '/opd',          icon: Stethoscope,  label: 'OPD queue',          module: 'hasOPD',      perm: 'permOPD' },
-  { path: '/ipd',          icon: BedDouble,  label: 'IPD & Beds',   module: 'hasIPD',      perm: 'permIPD' },
-  { path: '/doctors',      icon: Activity, label: 'Doctors' },
-  { path: '/lab',          icon: FlaskConical,  label: 'Laboratory',   module: 'hasLab',      perm: 'permLab' },
-  { path: '/pharmacy',     icon: Pill,  label: 'Pharmacy',     module: 'hasPharmacy', perm: 'permPharmacy' },
+  { path: '/opd',          icon: Stethoscope,  label: 'Consultation',          module: 'hasOPD',      perm: 'permOPD' },
+  { path: '/ipd',          icon: BedDouble,  label: 'Admissions & Beds',   module: 'hasIPD',      perm: 'permIPD' },
+  { path: '/doctors',      icon: Activity, label: 'Doctors & Departments' },
+  { path: '/lab',          icon: FlaskConical,  label: 'Lab & Results',   module: 'hasLab',      perm: 'permLab' },
+  { path: '/pharmacy',     icon: Pill,  label: 'Medicines',     module: 'hasPharmacy', perm: 'permPharmacy' },
   { section: 'Finance' },
   { path: '/billing',      icon: CreditCard,  label: 'Billing',      module: 'hasBilling',  perm: 'permBilling' },
-  { path: '/deposits',     icon: WalletCards,  label: 'Deposits',     module: 'hasBilling',  perm: 'permBilling' },
-  { path: '/reports',      icon: FileBarChart,  label: 'Reports',      module: 'hasReports',  perm: 'permReports' },
+  { path: '/deposits',     icon: WalletCards,  label: 'Advance Payments',     module: 'hasBilling',  perm: 'permBilling' },
+  { path: '/reports',      icon: FileBarChart,  label: 'Accounts & Reports',      module: 'hasReports',  perm: 'permReports' },
   { section: 'Admin' },
-  { path: '/staff',        icon: Users,  label: 'Staff & access',   perm: 'permStaff' },
-  { path: '/support',      icon: CircleHelp,  label: 'Help & support' },
+  { path: '/staff',        icon: Users,  label: 'Team & Access',   perm: 'permStaff' },
+  { path: '/support',      icon: CircleHelp,  label: 'Help & Support' },
   { path: '/settings',     icon: Settings,  label: 'Settings' },
 ]
+
+const PRIMARY_PATHS = ['/dashboard', '/patients', '/appointments', '/opd', '/billing']
 
 const SEVERITY_STYLES = {
   error:   { bg: 'bg-red-50',    border: 'border-red-200',    icon: '🔴', badge: 'bg-red-500'    },
@@ -113,7 +115,8 @@ function NotificationPanel({ onClose }) {
 }
 
 export default function Layout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window === 'undefined' || window.innerWidth >= 640)
+  const [moreOpen, setMoreOpen] = useState(false)
   const [showAlerts, setShowAlerts] = useState(false)
   const [alertCount, setAlertCount] = useState(0)
   const [announcements, setAnnouncements] = useState([])
@@ -130,9 +133,12 @@ export default function Layout({ children }) {
   const navItems = ALL_NAV.filter(item => {
     if (item.section) return true
     if (item.module && user?.[item.module] === false) return false
-    if (item.perm && !isAdmin && user?.[item.perm] === false) return false
+    if (item.perm && !isAdmin && !user?.[item.perm]) return false
     return true
   })
+
+  const primaryItems = navItems.filter(item => item.path && PRIMARY_PATHS.includes(item.path))
+  const moreItems = navItems.filter(item => item.path && !PRIMARY_PATHS.includes(item.path))
 
   const initials = user?.fullName
     ?.split(' ')
@@ -186,7 +192,7 @@ export default function Layout({ children }) {
     <div className="mca-shell flex h-screen bg-gray-50 overflow-hidden">
 
       {/* Sidebar */}
-      <aside className={`mca-sidebar  bg-[#0B2D24] flex flex-col transition-all duration-300 flex-shrink-0`}>
+      <aside className={`mca-sidebar ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'} bg-[#0B2D24] flex flex-col transition-all duration-300 flex-shrink-0`}>
 
         {/* Logo */}
         <div className="p-4 border-b border-white/10">
@@ -205,37 +211,28 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-2">
-          {navItems.map((item, i) => {
-            if (item.section) {
-              return sidebarOpen ? (
-                <div key={i} className="px-4 pt-4 pb-1 text-xs text-emerald-600/60 uppercase tracking-wider font-semibold">
-                  {item.section}
-                </div>
-              ) : <div key={i} className="my-1 mx-2 border-t border-white/10" />
-            }
-
-            const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'))
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => { if (window.innerWidth < 640) setSidebarOpen(false) }}
-                className={`flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm transition-all ${
-                  isActive
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-emerald-200/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
-              </Link>
-            )
+        {/* Daily work first; less-used modules stay available under More tools. */}
+        <nav className="flex-1 overflow-y-auto py-2" aria-label="Daily workflow">
+          {sidebarOpen && <div className="mca-nav-caption">Daily work</div>}
+          {primaryItems.map(item => {
+            const active = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'))
+            return <Link key={item.path} to={item.path} onClick={() => { if (window.innerWidth < 640) setSidebarOpen(false) }}
+              className={`flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm transition-all ${active ? 'bg-emerald-600 text-white' : 'text-emerald-200/70 hover:bg-white/5 hover:text-white'}`}>
+              <item.icon className="w-[18px] h-[18px] flex-shrink-0" />{sidebarOpen && <span>{item.label}</span>}
+            </Link>
           })}
+          <button type="button" onClick={() => setMoreOpen(v => !v)} className="mca-more-toggle">
+            <MoreHorizontal className="w-[18px] h-[18px]" />
+            {sidebarOpen && <><span>More tools</span><ChevronDown className={`w-4 h-4 ml-auto transition-transform ${moreOpen ? 'rotate-180' : ''}`}/></>}
+          </button>
+          {moreOpen && <div className="mca-more-nav">{moreItems.map(item => {
+            const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+            return <Link key={item.path} to={item.path} onClick={() => { if (window.innerWidth < 640) setSidebarOpen(false) }}
+              className={`flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm ${active ? 'bg-emerald-600 text-white' : 'text-emerald-200/70 hover:bg-white/5 hover:text-white'}`}>
+              <item.icon className="w-[18px] h-[18px] flex-shrink-0" />{sidebarOpen && <span>{item.label}</span>}
+            </Link>
+          })}</div>}
         </nav>
-
         {/* User */}
         <div className="p-3 border-t border-white/10">
           <div className="flex items-center gap-3">
@@ -276,6 +273,10 @@ export default function Layout({ children }) {
             </h1>
           </div>
           <div className="flex items-center gap-3">
+            <div className="mca-top-actions">
+              {navItems.some(n => n.path === '/patients') && <Link to="/patients?action=register" className="mca-top-link"><Users className="w-4 h-4"/> Register patient</Link>}
+              {navItems.some(n => n.path === '/appointments') && <Link to="/appointments?action=book" className="mca-top-link primary"><CalendarDays className="w-4 h-4"/> Book appointment</Link>}
+            </div>
             {/* Bell with badge */}
             <div ref={bellRef} className="relative">
               <button
@@ -330,6 +331,13 @@ export default function Layout({ children }) {
         </main>
 
       </div>
+      <nav className="mca-mobile-nav" aria-label="Daily workflow">
+        {primaryItems.slice(0, 4).map(item => {
+          const active = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'))
+          return <Link key={item.path} to={item.path} className={active ? 'active' : ''}><item.icon/><span>{item.label === 'Today’s Queue' ? 'Queue' : item.label}</span></Link>
+        })}
+        <button type="button" onClick={() => { setSidebarOpen(true); setMoreOpen(true) }}><MoreHorizontal/><span>More</span></button>
+      </nav>
     </div>
   )
 }

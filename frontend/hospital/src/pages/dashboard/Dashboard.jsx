@@ -81,7 +81,7 @@ export default function Dashboard() {
 
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Dashboard</h2>
+        <span className="mca-eyebrow">Daily workspace</span>\n        <h2 className="text-xl font-bold text-gray-900">Today at your hospital</h2>
         <p className="text-sm text-gray-500">
           {new Date().toLocaleDateString('en-IN', {
             weekday: 'long', year: 'numeric',
@@ -98,8 +98,8 @@ export default function Dashboard() {
           <p>Jump directly to the task your team uses most.</p>
         </div>
         <div className="mca-workflow-actions">
-          <Link to="/patients" className="primary"><UserPlus className="w-5 h-5"/><span><strong>Register patient</strong><small>Create a new patient record</small></span></Link>
-          <Link to="/appointments"><CalendarCheck className="w-5 h-5"/><span><strong>Book appointment</strong><small>Schedule or manage the queue</small></span></Link>
+          <Link to="/patients?action=register" className="primary"><UserPlus className="w-5 h-5"/><span><strong>Register patient</strong><small>Create a new patient record</small></span></Link>
+          <Link to="/appointments?action=book"><CalendarCheck className="w-5 h-5"/><span><strong>Book appointment</strong><small>Schedule or manage the queue</small></span></Link>
           <Link to="/opd"><Stethoscope className="w-5 h-5"/><span><strong>Start consultation</strong><small>Open today&#39;s OPD queue</small></span></Link>
           <Link to="/billing"><CreditCard className="w-5 h-5"/><span><strong>Create bill</strong><small>Collect and track payments</small></span></Link>
         </div>
@@ -140,11 +140,11 @@ export default function Dashboard() {
         {/* Recent Appointments */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <h3 className="text-sm font-semibold text-gray-700 mb-4">Recent Appointments</h3>
-          {stats.recentAppointments.length === 0 ? (
+          {(stats.recentAppointments || []).length === 0 ? (
             <div className="text-center py-8 text-gray-400 text-sm">No appointments yet</div>
           ) : (
             <div className="space-y-3">
-              {stats.recentAppointments.map((apt, i) => (
+              {(stats.recentAppointments || []).map((apt, i) => (
                 <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold">
@@ -174,11 +174,11 @@ export default function Dashboard() {
         {/* Department Stats */}
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <h3 className="text-sm font-semibold text-gray-700 mb-4">Department Overview</h3>
-          {stats.departmentStats.length === 0 ? (
+          {(stats.departmentStats || []).length === 0 ? (
             <div className="text-center py-8 text-gray-400 text-sm">No departments yet</div>
           ) : (
             <div className="space-y-3">
-              {stats.departmentStats.map((dept, i) => (
+              {(stats.departmentStats || []).map((dept, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-bold">
                     {dept.departmentName.slice(0,2).toUpperCase()}
@@ -214,8 +214,8 @@ export default function Dashboard() {
         </button>
         {showTrend && (
           <div className="flex items-end gap-3 h-32 mt-4">
-            {stats.monthlyStats.map((month, i) => {
-              const maxApts = Math.max(...stats.monthlyStats.map(m => m.appointments), 1)
+            {(stats.monthlyStats || []).map((month, i) => {
+              const maxApts = Math.max(...(stats.monthlyStats || []).map(m => m.appointments), 1)
               const height = (month.appointments / maxApts) * 100
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">

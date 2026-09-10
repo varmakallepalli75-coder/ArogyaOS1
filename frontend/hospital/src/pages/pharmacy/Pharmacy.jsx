@@ -289,12 +289,12 @@ export default function Pharmacy() {
   const lowStockCount = medicines.filter(m => m.isLowStock).length
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="mca-module space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pharmacy</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Medicine inventory and dispensing</p>
+          <p className="text-sm text-gray-500 mt-0.5">Dispense prescriptions and manage medicine stock</p>
         </div>
         <div className="flex gap-2">
           {tab === 'medicines' && (
@@ -319,7 +319,7 @@ export default function Pharmacy() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-        {[['prescriptions', `Prescriptions${prescriptions.length ? ` (${prescriptions.length})` : ''}`], ['orders', 'Dispense Orders'], ['medicines', 'Medicine Catalog']].map(([key, label]) => (
+        {[['prescriptions', `Prescriptions${prescriptions.length ? ` (${prescriptions.length})` : ''}`], ['orders', 'Dispensing History'], ['medicines', 'Medicines & Stock']].map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}

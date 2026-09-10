@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { billingService } from '../../services/billingService'
 import { patientService } from '../../services/patientService'
 import { depositService } from '../../services/depositService'
+import CareJourney from '../../components/workflow/CareJourney'
 
 const PAYMENT_MODES = ['Cash', 'Card', 'UPI', 'NEFT', 'RTGS', 'Cheque', 'Insurance', 'Ayushman', 'CGHS', 'ESIC']
 
@@ -176,6 +177,7 @@ function CreateBillModal({ onClose, onDone }) {
           {/* Step 2 — Services */}
           {step === 2 && (
             <div className="space-y-5">
+      <CareJourney current="payment" />
               {/* Patient chip */}
               <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
                 <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center text-white text-sm font-bold">

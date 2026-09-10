@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { patientService } from '../../services/patientService'
 import { authService } from '../../services/authService'
+import CareJourney from '../../components/workflow/CareJourney'
 
 const PORTAL_URL = 'https://portal.medcareaxis.com'
 
@@ -16,7 +17,8 @@ export default function Patients() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [showForm, setShowForm] = useState(false)
+  const [showForm, setShowForm] = useState(() => new URLSearchParams(window.location.search).get('action') === 'register')
+  const [showMoreDetails, setShowMoreDetails] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -111,6 +113,7 @@ export default function Patients() {
 
   return (
     <div className="space-y-4">
+      <CareJourney current="registration" />
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -343,68 +346,78 @@ export default function Patients() {
                 </div>
               </div>
 
-              {/* Emergency Contact */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Emergency Contact</h4>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Name</label>
-                    <input value={form.emergencyContactName} onChange={e => f('emergencyContactName', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
-                    <input value={form.emergencyContactPhone} onChange={e => f('emergencyContactPhone', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Relation</label>
-                    <input value={form.emergencyContactRelation} onChange={e => f('emergencyContactRelation', e.target.value)}
-                      placeholder="e.g. Wife, Son, Father"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Insurance */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Insurance</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Insurance Type</label>
-                    <select value={form.insuranceType} onChange={e => f('insuranceType', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                      {insuranceTypes.map((t, i) => <option key={i} value={i}>{t}</option>)}
-                    </select>
-                  </div>
-                  {form.insuranceType === 1 && (
+              <button type="button" onClick={() => setShowMoreDetails(v => !v)}
+                className="mca-optional-toggle" aria-expanded={showMoreDetails}>
+                <span><strong>{showMoreDetails ? 'Hide optional details' : 'Add more patient details'}</strong><small>Emergency contact, insurance and medical history</small></span>
+                <span>{showMoreDetails ? '−' : '+'}</span>
+              </button>
+              {showMoreDetails && (
+                <div className="mca-optional-fields space-y-6">
+                {/* Emergency Contact */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Emergency Contact</h4>
+                  <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Ayushman Card Number</label>
-                      <input value={form.ayushmanCardNumber} onChange={e => f('ayushmanCardNumber', e.target.value)}
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Name</label>
+                      <input value={form.emergencyContactName} onChange={e => f('emergencyContactName', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                     </div>
-                  )}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+                      <input value={form.emergencyContactPhone} onChange={e => f('emergencyContactPhone', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Relation</label>
+                      <input value={form.emergencyContactRelation} onChange={e => f('emergencyContactRelation', e.target.value)}
+                        placeholder="e.g. Wife, Son, Father"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Medical */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Medical History</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Known Allergies</label>
-                    <input value={form.knownAllergies} onChange={e => f('knownAllergies', e.target.value)}
-                      placeholder="e.g. Penicillin, Dust"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Chronic Conditions</label>
-                    <input value={form.chronicConditions} onChange={e => f('chronicConditions', e.target.value)}
-                      placeholder="e.g. Diabetes, Hypertension"
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                {/* Insurance */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Insurance</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Insurance Type</label>
+                      <select value={form.insuranceType} onChange={e => f('insuranceType', parseInt(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        {insuranceTypes.map((t, i) => <option key={i} value={i}>{t}</option>)}
+                      </select>
+                    </div>
+                    {form.insuranceType === 1 && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Ayushman Card Number</label>
+                        <input value={form.ayushmanCardNumber} onChange={e => f('ayushmanCardNumber', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+
+                {/* Medical */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Medical History</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Known Allergies</label>
+                      <input value={form.knownAllergies} onChange={e => f('knownAllergies', e.target.value)}
+                        placeholder="e.g. Penicillin, Dust"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Chronic Conditions</label>
+                      <input value={form.chronicConditions} onChange={e => f('chronicConditions', e.target.value)}
+                        placeholder="e.g. Diabetes, Hypertension"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                  </div>
+                </div>
+
+                </div>
+              )}
 
               {/* Buttons */}
               <div className="flex gap-3 pt-2">

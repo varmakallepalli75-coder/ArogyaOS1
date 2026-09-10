@@ -88,12 +88,12 @@ export default function Support() {
   })
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl">
+    <div className="mca-module space-y-6 max-w-6xl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Support</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Raise a ticket and we'll get back to you</p>
+          <h1 className="text-2xl font-bold text-gray-900">Help & Support</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Get help or report a problem</p>
         </div>
         <button
           onClick={() => setShowNew(true)}

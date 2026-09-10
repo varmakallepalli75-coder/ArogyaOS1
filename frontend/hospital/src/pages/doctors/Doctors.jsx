@@ -253,11 +253,11 @@ export default function Doctors() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mca-module space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Doctors</h2>
-          <p className="text-sm text-gray-500">{doctors.length} doctors registered</p>
+          <h2 className="text-xl font-bold text-gray-900">Doctors & Departments</h2>
+          <p className="text-sm text-gray-500">{doctors.length} doctors on your team</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => { setShowDeptForm(true); setError('') }}

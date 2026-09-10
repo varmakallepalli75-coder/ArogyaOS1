@@ -209,16 +209,16 @@ export default function Staff() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="mca-module space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Team & Access</h1>
           <p className="text-sm text-gray-500 mt-0.5">{staff.length} staff member{staff.length !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={() => { setForm(blankForm()); setShowAdd(true) }}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition"
         >
           <span className="text-lg leading-none">+</span> Add Staff
         </button>
@@ -342,7 +342,7 @@ export default function Staff() {
                     key={r.value}
                     type="button"
                     onClick={() => handleRoleChange(r.value)}
-                    className={`px-3 py-1.5 rounded-xl text-sm font-medium border transition ${form.role === r.value ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}
+                    className={`px-3 py-1.5 rounded-xl text-sm font-medium border transition ${form.role === r.value ? 'bg-emerald-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}
                   >
                     {r.label}
                   </button>
@@ -446,7 +446,7 @@ export default function Staff() {
 
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-sm text-gray-600">Cancel</button>
-              <button onClick={submitCreate} disabled={saving} className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
+              <button onClick={submitCreate} disabled={saving} className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
                 {saving ? 'Creating...' : 'Create Staff Account'}
               </button>
             </div>
@@ -490,7 +490,7 @@ export default function Staff() {
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-100">
-              <button onClick={() => openEditPerms(selected)} className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700">
+              <button onClick={() => openEditPerms(selected)} className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700">
                 Edit Permissions
               </button>
               <button onClick={() => { setShowReset(true) }} className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-600">
@@ -525,7 +525,7 @@ export default function Staff() {
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setShowPerms(false)} className="px-4 py-2 text-sm text-gray-600">Cancel</button>
-              <button onClick={submitPerms} disabled={saving} className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50">
+              <button onClick={submitPerms} disabled={saving} className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
                 {saving ? 'Saving...' : 'Save Permissions'}
               </button>
             </div>

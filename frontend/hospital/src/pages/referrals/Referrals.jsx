@@ -275,10 +275,10 @@ export default function Referrals() {
   }, [])
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="mca-module space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Referrals</h1>
-        <p className="text-gray-500 text-sm mt-1">Cross-hospital patient referrals within the MedCareAxis network</p>
+        <h1 className="text-2xl font-bold text-gray-900">Patient Referrals</h1>
+        <p className="text-gray-500 text-sm mt-1">Send and receive patient referrals securely</p>
       </div>
 
       <div className="border-b border-gray-200">
