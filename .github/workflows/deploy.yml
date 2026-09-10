@@ -84,6 +84,17 @@ jobs:
             sudo cp -r /var/www/medcareaxis-published /var/www/medcareaxis-published.bak
           fi
 
+          # Ensure the production service loads secrets from the protected server-side file.
+          # This drop-in contains only the path; secret values never enter GitHub logs or the repository.
+          if ! sudo test -r /etc/medcareaxis/api.env; then
+            echo "❌ Missing /etc/medcareaxis/api.env on the production server"
+            exit 1
+          fi
+          sudo install -d -m 755 /etc/systemd/system/medcareaxis.service.d
+          printf "[Service]\nEnvironmentFile=/etc/medcareaxis/api.env\n" | sudo tee /etc/systemd/system/medcareaxis.service.d/environment.conf > /dev/null
+          sudo chmod 644 /etc/systemd/system/medcareaxis.service.d/environment.conf
+          sudo systemctl daemon-reload
+
           # Stop service before publishing to release file locks
           sudo systemctl stop medcareaxis
 
