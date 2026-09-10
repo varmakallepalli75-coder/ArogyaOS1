@@ -108,7 +108,15 @@ jobs:
           done
 
           if [ "$HEALTHY" -ne 1 ]; then
-            echo "❌ Health check failed — rolling back backend"
+            echo "❌ Health check failed — safe diagnostics"
+            sudo systemctl show medcareaxis -p ActiveState -p SubState -p Result -p ExecMainStatus -p EnvironmentFiles --no-pager || true
+            if sudo test -r /etc/medcareaxis/api.env; then
+              echo "Environment file: readable"
+              sudo awk -F= '/^(ConnectionStrings__DefaultConnection|JwtSettings__SecretKey|SuperAdmin__Email|SuperAdmin__Password|OtpSettings__Pepper)=/ { value=substr($0,index($0,"=")+1); printf "%s: %s (length %d)\n", $1, length(value)>0?"set":"EMPTY", length(value) }' /etc/medcareaxis/api.env
+            else
+              echo "Environment file: MISSING OR UNREADABLE"
+            fi
+            echo "❌ Rolling back backend"
             sudo systemctl stop medcareaxis
             if [ -d /var/www/medcareaxis-published.bak ]; then
               sudo rm -rf /var/www/medcareaxis-published
