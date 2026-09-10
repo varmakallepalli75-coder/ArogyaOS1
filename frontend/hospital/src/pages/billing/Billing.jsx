@@ -402,7 +402,7 @@ function CreateBillModal({ onClose, onDone }) {
 
 // ─── Bill Detail Modal ──────────────────────────────────────────────────────
 
-function BillDetailModal({ bill, onClose, onPayment, onRefresh }) {
+function BillDetailModal({ bill, onClose, onPayment }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -798,7 +798,6 @@ export default function Billing() {
           bill={selectedBill}
           onClose={() => setSelectedBill(null)}
           onPayment={(b) => { setPaymentBill(b); setSelectedBill(null) }}
-          onRefresh={load}
         />
       )}
 

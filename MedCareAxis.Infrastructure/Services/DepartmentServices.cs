@@ -145,10 +145,7 @@ public class DepartmentService : IDepartmentService
             return ApiResponse<DoctorResponse>.Fail("Department not found");
 
         // ─── Generate employee code ────────────────────
-        var count = await _context.Doctors
-            .Where(d => d.HospitalId == hospitalId)
-            .CountAsync();
-        var employeeCode = $"DOC-{(count + 1):D3}";
+        var employeeCode = $"DOC-{Guid.NewGuid():N}"[..12].ToUpperInvariant();
 
         var doctor = new Doctor
         {

@@ -1,7 +1,6 @@
 using MedCareAxis.Core.DTOs.Request;
 using MedCareAxis.Core.DTOs.Response;
 using MedCareAxis.Core.Entities;
-using MedCareAxis.Core.Entities;
 using MedCareAxis.Core.Enums;
 using MedCareAxis.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
@@ -54,11 +53,17 @@ public class AuthService : IAuthService
         if (user == null)
             return ApiResponse<LoginResponse>.Fail("Invalid email or password");
 
-        // ─── Check Password ────────────────────────────
-        var isPasswordValid = await _userManager
-            .CheckPasswordAsync(user, request.Password);
+        // ─── Check Password + enforce Identity lockout ─────
+        if (await _userManager.IsLockedOutAsync(user))
+            return ApiResponse<LoginResponse>.Fail("Account temporarily locked. Please try again later.");
+
+        var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
         if (!isPasswordValid)
+        {
+            await _userManager.AccessFailedAsync(user);
             return ApiResponse<LoginResponse>.Fail("Invalid email or password");
+        }
+        await _userManager.ResetAccessFailedCountAsync(user);
 
         // ─── Check Email Verified ──────────────────────
         if (!user.EmailConfirmed)
@@ -161,8 +166,7 @@ public class AuthService : IAuthService
                 "Email already registered.");
 
         // ─── Generate Hospital Code ────────────────────
-        var hospitalCount = await _context.Hospitals.CountAsync();
-        var hospitalCode = $"MCA-HOS-{(hospitalCount + 1):D4}";
+        var hospitalCode = $"MCA-HOS-{Guid.NewGuid():N}"[..16].ToUpperInvariant();
 
         // ─── Create Hospital ───────────────────────────
         var hospital = new Hospital

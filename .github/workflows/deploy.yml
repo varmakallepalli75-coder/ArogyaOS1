@@ -29,10 +29,30 @@ jobs:
     - name: Run Tests
       run: dotnet test -c Release --no-build
 
+  frontend:
+    name: Frontend build and lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
+    - name: Install dependencies
+      working-directory: frontend
+      run: npm ci
+    - name: Build and lint hospital app
+      working-directory: frontend/hospital
+      run: npm run lint && npm run build
+    - name: Build and lint patient portal
+      working-directory: frontend/patient-portal
+      run: npm run lint && npm run build
+
   # 🌐 JOB 2 - Deploy to Production (only on main branch)
   deploy-production:
     name: Deploy to Production
-    needs: test
+    needs: [test, frontend]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -80,7 +100,7 @@ jobs:
           # Health check — wait up to 100 seconds
           HEALTHY=0
           for i in $(seq 1 20); do
-            if curl -sf http://127.0.0.1:5000/health > /dev/null; then
+            if curl -sf http://127.0.0.1:5200/health > /dev/null; then
               HEALTHY=1
               break
             fi

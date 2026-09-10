@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using MedCareAxis.Core.Enums;
 using MedCareAxis.Core.Entities;
-using MedCareAxis.Core.Entities;
 using MedCareAxis.Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

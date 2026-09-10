@@ -124,7 +124,9 @@ public class OtpService : IOtpService
 
     private string Hash(string code)
     {
-        var pepper = _config["OtpSettings:Pepper"] ?? "MedCareAxis@Otp@Pepper";
+        var pepper = _config["OtpSettings:Pepper"];
+        if (string.IsNullOrWhiteSpace(pepper) || pepper.Length < 32)
+            throw new InvalidOperationException("OtpSettings:Pepper must be supplied securely.");
         var bytes = Encoding.UTF8.GetBytes(code + pepper);
         return Convert.ToHexString(SHA256.HashData(bytes));
     }

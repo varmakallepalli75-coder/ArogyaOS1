@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import { useAuth } from '../context/AuthContext'
 
 export default function Bills() {
   const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedBill, setSelectedBill] = useState(null)
   const navigate = useNavigate()
-  const { user } = useAuth()
 
   useEffect(() => { loadBills() }, [])
 

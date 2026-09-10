@@ -78,10 +78,7 @@ public class AppointmentService : IAppointmentService
             return ApiResponse<AppointmentResponse>.Fail("Doctor not found");
 
         // ─── Generate appointment number ───────────────
-        var count = await _context.Appointments
-            .Where(a => a.HospitalId == hospitalId)
-            .CountAsync();
-        var appointmentNumber = $"APT-{DateTime.Now:yyyyMMdd}-{(count + 1):D4}";
+        var appointmentNumber = $"APT-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..21].ToUpperInvariant();
 
         // ─── Generate token number ─────────────────────
         var todayCount = await _context.Appointments
@@ -89,7 +86,7 @@ public class AppointmentService : IAppointmentService
                 && a.DoctorId == request.DoctorId
                 && a.AppointmentDateTime.Date == request.AppointmentDateTime.Date)
             .CountAsync();
-        var tokenNumber = $"T{(todayCount + 1):D3}";
+        var tokenNumber = $"T{todayCount + 1:D3}-{Guid.NewGuid():N}"[..9].ToUpperInvariant();
 
         var appointment = new Appointment
         {

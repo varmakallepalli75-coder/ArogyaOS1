@@ -16,11 +16,11 @@ public class SubscriptionCheckAttribute : Attribute, IAsyncActionFilter
     {
         var user = context.HttpContext.User;
 
-        // Super admin and unauthenticated requests skip the check
+        // Only identities that never belong to a hospital bypass subscription enforcement
         var role = user.Claims.FirstOrDefault(c => c.Type == "role")?.Value
                 ?? user.Claims.FirstOrDefault(c => c.Type.EndsWith("/role"))?.Value;
 
-        if (role is "SuperAdmin" or "Patient" or null)
+        if (role is "SuperAdmin" or "Patient")
         {
             await next();
             return;
@@ -29,7 +29,7 @@ public class SubscriptionCheckAttribute : Attribute, IAsyncActionFilter
         var hospitalIdClaim = user.Claims.FirstOrDefault(c => c.Type == "hospitalId")?.Value;
         if (!Guid.TryParse(hospitalIdClaim, out var hospitalId))
         {
-            await next();
+            context.Result = new ObjectResult(new { success = false, message = "Hospital identity is missing or invalid.", code = "INVALID_HOSPITAL_CONTEXT" }) { StatusCode = 403 };
             return;
         }
 
@@ -40,7 +40,7 @@ public class SubscriptionCheckAttribute : Attribute, IAsyncActionFilter
 
         if (sub == null)
         {
-            await next();
+            context.Result = new ObjectResult(new { success = false, message = "No active subscription was found for this hospital.", code = "SUBSCRIPTION_REQUIRED" }) { StatusCode = 402 };
             return;
         }
 

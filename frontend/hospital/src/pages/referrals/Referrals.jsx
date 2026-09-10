@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { referralService } from '../../services/referralService'
-import { useAuth } from '../../context/AuthContext'
 
 const URGENCY_COLORS = {
   Routine:   'bg-gray-100 text-gray-700',

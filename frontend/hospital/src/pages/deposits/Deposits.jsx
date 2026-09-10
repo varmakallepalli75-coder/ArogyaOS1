@@ -14,7 +14,7 @@ const statusBadge = (d) => {
 function CollectModal({ onClose, onDone }) {
   const [patientSearch, setPatientSearch] = useState('')
   const [patientResults, setPatientResults] = useState([])
-  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [, setSelectedPatient] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({

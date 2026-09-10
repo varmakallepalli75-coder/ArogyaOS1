@@ -23,6 +23,7 @@ public class PatientController : ControllerBase
 
     // ─── GET api/patient ──────────────────────────────
     [HttpGet]
+    [Authorize(Policy = "Patients")]
     public async Task<IActionResult> GetAll(
         [FromQuery] string? search,
         [FromQuery] int page = 1,
@@ -37,6 +38,7 @@ public class PatientController : ControllerBase
 
     // ─── GET api/patient/{id} ─────────────────────────
     [HttpGet("{id}")]
+    [Authorize(Policy = "Patients")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var hospitalId = GetHospitalId();
@@ -48,6 +50,7 @@ public class PatientController : ControllerBase
 
     // ─── POST api/patient ─────────────────────────────
     [HttpPost]
+    [Authorize(Policy = "Patients")]
     public async Task<IActionResult> Create(
         [FromBody] CreatePatientRequest request)
     {
@@ -62,6 +65,7 @@ public class PatientController : ControllerBase
 
     // ─── PUT api/patient/{id} ─────────────────────────
     [HttpPut("{id}")]
+    [Authorize(Policy = "Patients")]
     public async Task<IActionResult> Update(
         Guid id, [FromBody] UpdatePatientRequest request)
     {
@@ -75,6 +79,7 @@ public class PatientController : ControllerBase
 
     // ─── GET api/patient/search ───────────────────────
     [HttpGet("search")]
+    [Authorize(Policy = "Patients")]
     public async Task<IActionResult> Search([FromQuery] string q)
     {
         var hospitalId = GetHospitalId();
@@ -88,6 +93,7 @@ public class PatientController : ControllerBase
 
     // ─── GET api/patient/my-profile ───────────────────
     [HttpGet("my-profile")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> GetMyProfile()
     {
         var patientId = GetPatientId();

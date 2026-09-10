@@ -6,10 +6,10 @@ namespace MedCareAxis.Core.DTOs.Request;
 public class CreatePatientRequest
 {
     // ─── Identity ──────────────────────────────────────
-    [Required]
+    [Required, StringLength(100, MinimumLength = 1)]
     public string FirstName { get; set; } = string.Empty;
     public string? MiddleName { get; set; }
-    [Required]
+    [Required, StringLength(100, MinimumLength = 1)]
     public string LastName { get; set; } = string.Empty;
     [Required]
     public DateTime DateOfBirth { get; set; }
@@ -19,9 +19,10 @@ public class CreatePatientRequest
     public MaritalStatus MaritalStatus { get; set; }
 
     // ─── Contact ───────────────────────────────────────
-    [Required]
+    [Required, RegularExpression("^[0-9]{10,15}$")]
     public string MobileNumber { get; set; } = string.Empty;
     public string? AlternateMobile { get; set; }
+    [EmailAddress, MaxLength(100)]
     public string? Email { get; set; }
 
     // ─── Address ───────────────────────────────────────
@@ -32,6 +33,7 @@ public class CreatePatientRequest
     public string? PinCode { get; set; }
 
     // ─── Government IDs ────────────────────────────────
+    [RegularExpression("^[0-9]{12}$")]
     public string? AadhaarNumber { get; set; }
     public string? ABHAId { get; set; }
 

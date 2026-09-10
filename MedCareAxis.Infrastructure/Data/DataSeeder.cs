@@ -27,10 +27,10 @@ public static class DataSeeder
         }
 
         // ─── Seed Super Admin ──────────────────────────
-        var superAdminEmail = configuration["SuperAdmin:Email"]
-            ?? "admin@medcareaxis.com";
-        var superAdminPassword = configuration["SuperAdmin:Password"]
-            ?? "Admin@12345";
+        var superAdminEmail = configuration["SuperAdmin:Email"];
+        var superAdminPassword = configuration["SuperAdmin:Password"];
+        if (string.IsNullOrWhiteSpace(superAdminEmail) || string.IsNullOrWhiteSpace(superAdminPassword))
+            throw new InvalidOperationException("SuperAdmin credentials must be supplied through secure configuration.");
 
         var existingAdmin = await userManager
             .FindByEmailAsync(superAdminEmail);
@@ -60,8 +60,6 @@ public static class DataSeeder
                     UserRole.SuperAdmin.ToString());
 
                 Console.WriteLine("✅ Super Admin created successfully!");
-                Console.WriteLine($"   Email: {superAdminEmail}");
-                Console.WriteLine($"   Password: {superAdminPassword}");
             }
             else
             {

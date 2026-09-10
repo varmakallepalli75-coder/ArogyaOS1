@@ -9,7 +9,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "PatientOnly")]
 public class HealthRecordsController : ControllerBase
 {
     private readonly IHealthRecordsService _service;

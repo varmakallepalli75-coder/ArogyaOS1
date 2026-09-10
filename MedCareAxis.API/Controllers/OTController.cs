@@ -9,7 +9,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/ot")]
-[Authorize]
+[Authorize(Policy = "IPD")]
 [SubscriptionCheck]
 public class OTController : ControllerBase
 {

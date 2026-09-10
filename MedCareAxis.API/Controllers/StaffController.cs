@@ -9,7 +9,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/staff")]
-[Authorize]
+[Authorize(Policy = "HospitalAdmin")]
 [SubscriptionCheck]
 public class StaffController : ControllerBase
 {

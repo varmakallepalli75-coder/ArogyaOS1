@@ -27,6 +27,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "Billing")]
     public async Task<IActionResult> GetAll(
         [FromQuery] DateTime? date,
         [FromQuery] string? search,
@@ -40,6 +41,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "Billing")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var hospitalId = GetHospitalId();
@@ -49,6 +51,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpGet("{id}/pdf")]
+    [Authorize(Policy = "Billing")]
     public async Task<IActionResult> DownloadPdf(Guid id)
     {
         var hospitalId = GetHospitalId();
@@ -72,6 +75,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpGet("patient/{patientId}")]
+    [Authorize(Policy = "Billing")]
     public async Task<IActionResult> GetByPatient(
         Guid patientId,
         [FromQuery] int page = 1,
@@ -84,6 +88,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpGet("my")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> GetMyBills(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
@@ -96,6 +101,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpGet("my/{id}/pdf")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> DownloadMyBillPdf(Guid id)
     {
         var patientId  = GetPatientId();
@@ -120,6 +126,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "Billing")]
     public async Task<IActionResult> Create([FromBody] CreateBillRequest request)
     {
         if (IsExternal()) return StatusCode(403, new { success = false, message = "External partners cannot create bills." });
@@ -132,6 +139,7 @@ public class BillingController : ControllerBase
     }
 
     [HttpPost("payment")]
+    [Authorize(Policy = "Billing")]
     public async Task<IActionResult> RecordPayment([FromBody] RecordPaymentRequest request)
     {
         if (IsExternal()) return StatusCode(403, new { success = false, message = "External partners cannot record payments." });

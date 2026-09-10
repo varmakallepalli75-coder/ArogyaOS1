@@ -20,6 +20,7 @@ public class OPDController : ControllerBase
     }
 
     [HttpPost("consultation")]
+    [Authorize(Policy = "OPD")]
     public async Task<IActionResult> SaveConsultation(
         [FromBody] SaveConsultationRequest request)
     {
@@ -32,6 +33,7 @@ public class OPDController : ControllerBase
     }
 
     [HttpGet("consultation/{appointmentId}")]
+    [Authorize(Policy = "OPD")]
     public async Task<IActionResult> GetConsultation(Guid appointmentId)
     {
         var hospitalId = GetHospitalId();
@@ -42,6 +44,7 @@ public class OPDController : ControllerBase
     }
 
     [HttpGet("patient/{patientId}/history")]
+    [Authorize(Policy = "OPD")]
     public async Task<IActionResult> GetPatientHistory(
         Guid patientId, [FromQuery] int limit = 5)
     {
@@ -52,6 +55,7 @@ public class OPDController : ControllerBase
     }
 
     [HttpGet("my/history")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> GetMyHistory([FromQuery] int limit = 50)
     {
         var patientId  = GetPatientId();

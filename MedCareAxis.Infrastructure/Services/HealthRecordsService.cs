@@ -262,9 +262,28 @@ public class HealthRecordsService : IHealthRecordsService
     public async Task<ApiResponse<PatientDocumentResponse>> UploadDocumentAsync(
         string mobileNumber, UploadDocumentRequest request)
     {
+        var allowedMimeTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "application/pdf", "image/jpeg", "image/png"
+        };
+        var allowedDocumentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Prescription", "LabReport", "Discharge", "Scan", "Vaccination", "Other"
+        };
+        if (!allowedMimeTypes.Contains(request.MimeType) || !allowedDocumentTypes.Contains(request.DocumentType))
+            return ApiResponse<PatientDocumentResponse>.Fail("Unsupported document type.");
+
+        byte[] bytes;
+        try { bytes = Convert.FromBase64String(request.FileBase64); }
+        catch (FormatException) { return ApiResponse<PatientDocumentResponse>.Fail("Invalid file encoding."); }
+        if (bytes.Length == 0 || bytes.Length > 5 * 1024 * 1024)
+            return ApiResponse<PatientDocumentResponse>.Fail("File must be between 1 byte and 5 MB.");
+
+        var safeFileName = Path.GetFileName(request.FileName);
+        if (string.IsNullOrWhiteSpace(safeFileName))
+            return ApiResponse<PatientDocumentResponse>.Fail("Invalid filename.");
         var docId = Guid.NewGuid();
-        var storageKey = $"patient-documents/{mobileNumber}/{docId}/{request.FileName}";
-        var bytes = Convert.FromBase64String(request.FileBase64);
+        var storageKey = $"patient-documents/{mobileNumber}/{docId}/{safeFileName}";
         await _storage.UploadAsync(storageKey, bytes, request.MimeType);
 
         var doc = new PatientDocument
@@ -272,7 +291,7 @@ public class HealthRecordsService : IHealthRecordsService
             Id = docId,
             MobileNumber = mobileNumber,
             DocumentType = request.DocumentType,
-            FileName = request.FileName,
+            FileName = safeFileName,
             StorageKey = storageKey,
             MimeType = request.MimeType,
             Description = request.Description,

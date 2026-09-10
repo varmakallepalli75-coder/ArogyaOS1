@@ -10,6 +10,20 @@ export function createViteConfig({ port, apiTarget = 'http://localhost:5200' }) 
       react(),
       tailwindcss(),
     ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return undefined
+            if (id.includes('react')) return 'react-vendor'
+            if (id.includes('sentry')) return 'monitoring'
+            if (id.includes('recharts')) return 'charts'
+            if (id.includes('lucide-react')) return 'icons'
+            return 'vendor'
+          }
+        }
+      }
+    },
     server: {
       port,
       proxy: {

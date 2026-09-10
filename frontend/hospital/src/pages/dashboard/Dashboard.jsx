@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronUp,
 } from 'lucide-react'
 import api from '../../services/api'
+import { Link } from 'react-router-dom'
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null)
@@ -88,6 +89,21 @@ export default function Dashboard() {
           })}
         </p>
       </div>
+
+      {/* Common workflow — additive shortcuts; all original dashboard information remains below. */}
+      <section className="mca-workflow" aria-label="Common tasks">
+        <div className="mca-workflow-copy">
+          <span className="mca-eyebrow">Quick workflow</span>
+          <h3>What would you like to do?</h3>
+          <p>Jump directly to the task your team uses most.</p>
+        </div>
+        <div className="mca-workflow-actions">
+          <Link to="/patients" className="primary"><UserPlus className="w-5 h-5"/><span><strong>Register patient</strong><small>Create a new patient record</small></span></Link>
+          <Link to="/appointments"><CalendarCheck className="w-5 h-5"/><span><strong>Book appointment</strong><small>Schedule or manage the queue</small></span></Link>
+          <Link to="/opd"><Stethoscope className="w-5 h-5"/><span><strong>Start consultation</strong><small>Open today&#39;s OPD queue</small></span></Link>
+          <Link to="/billing"><CreditCard className="w-5 h-5"/><span><strong>Create bill</strong><small>Collect and track payments</small></span></Link>
+        </div>
+      </section>
 
       {/* Today — the numbers that change through the day */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

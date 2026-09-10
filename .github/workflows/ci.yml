@@ -41,7 +41,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install workspace dependencies
         working-directory: frontend
@@ -54,3 +54,11 @@ jobs:
       - name: Build patient-portal app
         working-directory: frontend/patient-portal
         run: npm run build
+
+      - name: Lint hospital app
+        working-directory: frontend/hospital
+        run: npm run lint
+
+      - name: Lint patient portal
+        working-directory: frontend/patient-portal
+        run: npm run lint

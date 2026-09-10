@@ -62,7 +62,6 @@ function JourneyCard({ apt }) {
         {STEPS.map((s, idx) => {
           const done   = currentStep > s.step
           const active = currentStep === s.step
-          const future = currentStep < s.step
           const isLast = idx === STEPS.length - 1
           const stepInfo = apt.steps?.find(st => st.step === s.step)
           const c = COLOR[s.color]

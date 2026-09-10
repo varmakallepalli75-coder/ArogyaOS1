@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
+import { Activity, Bell, Building2, CreditCard, FileClock, HeartPulse, LayoutDashboard, Megaphone, Plus, Settings, TicketCheck } from 'lucide-react'
 
 const NAV = [
-  { icon: '▣',  label: 'Dashboard',     path: '/super-admin' },
-  { icon: '🏥', label: 'Hospitals',     path: '/super-admin/hospitals' },
-  { icon: '📊', label: 'Analytics',     path: '/super-admin/analytics' },
-  { icon: '❤️', label: 'Health',        path: '/super-admin/health' },
-  { icon: '🔔', label: 'Renewals',      path: '/super-admin/renewals', badge: 'renewals' },
-  { icon: '💳', label: 'Payments',      path: '/super-admin/payments' },
-  { icon: '📢', label: 'Announcements', path: '/super-admin/announcements' },
-  { icon: '🎫', label: 'Support',       path: '/super-admin/support' },
-  { icon: '📋', label: 'Audit Logs',    path: '/super-admin/audit-logs' },
-  { icon: '⚙️', label: 'Settings',      path: '/super-admin/settings' },
+  { icon: LayoutDashboard,  label: 'Dashboard',     path: '/super-admin' },
+  { icon: Building2, label: 'Hospitals',     path: '/super-admin/hospitals' },
+  { icon: Activity, label: 'Analytics',     path: '/super-admin/analytics' },
+  { icon: HeartPulse, label: 'Health',        path: '/super-admin/health' },
+  { icon: Bell, label: 'Renewals',      path: '/super-admin/renewals', badge: 'renewals' },
+  { icon: CreditCard, label: 'Payments',      path: '/super-admin/payments' },
+  { icon: Megaphone, label: 'Announcements', path: '/super-admin/announcements' },
+  { icon: TicketCheck, label: 'Support',       path: '/super-admin/support' },
+  { icon: FileClock, label: 'Audit Logs',    path: '/super-admin/audit-logs' },
+  { icon: Settings, label: 'Settings',      path: '/super-admin/settings' },
 ]
 
 export default function SuperAdminLayout({ children, title, subtitle }) {
@@ -29,13 +30,13 @@ export default function SuperAdminLayout({ children, title, subtitle }) {
   }, [])
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="mca-admin flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
       <aside className="w-60 bg-slate-900 flex flex-col flex-shrink-0">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-white text-lg">A</div>
+            <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-white text-lg"><Plus className="w-5 h-5" /></div>
             <div>
               <div className="text-white font-bold text-sm">MedCareAxis</div>
               <div className="text-emerald-400 text-xs font-medium">Super Admin</div>
@@ -56,7 +57,7 @@ export default function SuperAdminLayout({ children, title, subtitle }) {
                     ? 'bg-emerald-600 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800'
                 }`}>
-                <span className="text-base flex-shrink-0">{item.icon}</span>
+                <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
                 <span className="flex-1 text-left">{item.label}</span>
                 {badgeCount > 0 && (
                   <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">

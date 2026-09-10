@@ -10,7 +10,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "Pharmacy")]
 [SubscriptionCheck]
 public class PharmacyController : ControllerBase
 {

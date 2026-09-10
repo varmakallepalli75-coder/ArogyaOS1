@@ -9,7 +9,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/deposits")]
-[Authorize]
+[Authorize(Policy = "Billing")]
 [SubscriptionCheck]
 public class DepositController : ControllerBase
 {

@@ -369,8 +369,7 @@ public class SuperAdminService : ISuperAdminService
         if (emailTaken)
             return ApiResponse<RegisterHospitalResponse>.Fail("A hospital with this email already exists.");
 
-        var hospitalCount = await _context.Hospitals.CountAsync();
-        var hospitalCode = $"MCA-HOS-{(hospitalCount + 1):D4}";
+        var hospitalCode = $"MCA-HOS-{Guid.NewGuid():N}"[..16].ToUpperInvariant();
 
         var hospital = new Hospital
         {
@@ -688,7 +687,7 @@ public class SuperAdminService : ISuperAdminService
         if (!Enum.TryParse<PaymentMode>(paymentMode, out var mode))
             mode = PaymentMode.Cash;
 
-        var invoiceCount = await _context.SubscriptionPayments.CountAsync() + 1;
+
         var payment = new SubscriptionPayment
         {
             SubscriptionId = sub.Id,
@@ -696,7 +695,7 @@ public class SuperAdminService : ISuperAdminService
             Amount = amount,
             PaidOn = DateTime.UtcNow,
             PaymentMode = mode,
-            InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMM}-{invoiceCount:D4}",
+            InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMM}-{Guid.NewGuid():N}"[..20].ToUpperInvariant(),
             Notes = notes
         };
         _context.SubscriptionPayments.Add(payment);

@@ -116,9 +116,7 @@ public class StaffService : IStaffService
             if (request.DepartmentId == null)
                 return ApiResponse<StaffDetailResponse>.Fail("Department is required for doctor accounts.");
 
-            var doctorCount = await _context.Doctors
-                .Where(d => d.HospitalId == hospitalId).CountAsync();
-            var employeeCode = $"DOC-{(doctorCount + 1):D3}";
+            var employeeCode = $"DOC-{Guid.NewGuid():N}"[..12].ToUpperInvariant();
 
             var doctor = new MedCareAxis.Core.Entities.Doctor
             {

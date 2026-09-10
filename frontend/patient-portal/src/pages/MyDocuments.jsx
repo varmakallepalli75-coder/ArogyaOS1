@@ -307,13 +307,13 @@ export default function MyDocuments() {
             <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-100">
               {viewDoc.mimeType?.startsWith('image/') ? (
                 <img
-                  src={`data:${viewDoc.mimeType};base64,${viewDoc.fileBase64}`}
+                  src={viewDoc.fileUrl}
                   alt={viewDoc.fileName}
                   className="max-w-full max-h-full object-contain rounded"
                 />
               ) : viewDoc.mimeType === 'application/pdf' ? (
                 <iframe
-                  src={`data:application/pdf;base64,${viewDoc.fileBase64}`}
+                  src={viewDoc.fileUrl}
                   className="w-full h-96 rounded"
                   title={viewDoc.fileName}
                 />
@@ -323,7 +323,7 @@ export default function MyDocuments() {
             </div>
             <div className="p-4 border-t">
               <a
-                href={`data:${viewDoc.mimeType};base64,${viewDoc.fileBase64}`}
+                href={viewDoc.fileUrl}
                 download={viewDoc.fileName}
                 className="w-full block text-center bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-semibold">
                 Download

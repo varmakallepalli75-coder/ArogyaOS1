@@ -1,3 +1,4 @@
+/* global clients */
 const CACHE_NAME = 'medcareaxis-v2';
 const urlsToCache = ['/', '/index.html'];
 

@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
       mobileNumber, dateOfBirth, code
     })
     if (res.data.success) {
-      const { accessToken, fullName, linkedHospitals, expiresAt } = res.data.data
+      const { accessToken, fullName, linkedHospitals } = res.data.data
       const userData = {
         id: mobileNumber,
         fullName,

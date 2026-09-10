@@ -17,7 +17,7 @@ const fmtMonth = (m) => {
   return new Date(+y, +mo - 1).toLocaleString('en-IN', { month: 'short', year: '2-digit' })
 }
 
-function BarChart({ data, valueKey = 'amount', color = 'bg-emerald-500', label = '' }) {
+function BarChart({ data, valueKey = 'amount', color = 'bg-emerald-500' }) {
   if (!data?.length) return <div className="text-center py-10 text-gray-400 text-sm">No data</div>
   const max = Math.max(...data.map(d => d[valueKey] || 0)) || 1
   return (

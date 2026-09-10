@@ -2,27 +2,28 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
+import { Activity, BedDouble, Bell, CalendarDays, ChevronRight, CircleHelp, CreditCard, FileBarChart, FlaskConical, LayoutDashboard, LogOut, Menu, Pill, Plus, Settings, Stethoscope, Users, WalletCards } from 'lucide-react'
 
 const ALL_NAV = [
   { section: 'Main' },
-  { path: '/dashboard',    icon: '◻',   label: 'Dashboard' },
-  { path: '/patients',     icon: '👤',  label: 'Patients',     perm: 'permPatients' },
-  { path: '/appointments', icon: '📅',  label: 'Appointments', perm: 'permAppointments' },
-  { path: '/referrals',    icon: '↗',   label: 'Referrals',    perm: 'permPatients' },
+  { path: '/dashboard',    icon: LayoutDashboard,   label: 'Overview' },
+  { path: '/patients',     icon: Users,  label: 'Patients',     perm: 'permPatients' },
+  { path: '/appointments', icon: CalendarDays,  label: 'Appointments', perm: 'permAppointments' },
+  { path: '/referrals',    icon: ChevronRight,   label: 'Referrals',    perm: 'permPatients' },
   { section: 'Clinical' },
-  { path: '/opd',          icon: '🏥',  label: 'OPD',          module: 'hasOPD',      perm: 'permOPD' },
-  { path: '/ipd',          icon: '🛏',  label: 'IPD & Beds',   module: 'hasIPD',      perm: 'permIPD' },
-  { path: '/doctors',      icon: '👨‍⚕️', label: 'Doctors' },
-  { path: '/lab',          icon: '🔬',  label: 'Laboratory',   module: 'hasLab',      perm: 'permLab' },
-  { path: '/pharmacy',     icon: '💊',  label: 'Pharmacy',     module: 'hasPharmacy', perm: 'permPharmacy' },
+  { path: '/opd',          icon: Stethoscope,  label: 'OPD queue',          module: 'hasOPD',      perm: 'permOPD' },
+  { path: '/ipd',          icon: BedDouble,  label: 'IPD & Beds',   module: 'hasIPD',      perm: 'permIPD' },
+  { path: '/doctors',      icon: Activity, label: 'Doctors' },
+  { path: '/lab',          icon: FlaskConical,  label: 'Laboratory',   module: 'hasLab',      perm: 'permLab' },
+  { path: '/pharmacy',     icon: Pill,  label: 'Pharmacy',     module: 'hasPharmacy', perm: 'permPharmacy' },
   { section: 'Finance' },
-  { path: '/billing',      icon: '🧾',  label: 'Billing',      module: 'hasBilling',  perm: 'permBilling' },
-  { path: '/deposits',     icon: '💰',  label: 'Deposits',     module: 'hasBilling',  perm: 'permBilling' },
-  { path: '/reports',      icon: '📊',  label: 'Reports',      module: 'hasReports',  perm: 'permReports' },
+  { path: '/billing',      icon: CreditCard,  label: 'Billing',      module: 'hasBilling',  perm: 'permBilling' },
+  { path: '/deposits',     icon: WalletCards,  label: 'Deposits',     module: 'hasBilling',  perm: 'permBilling' },
+  { path: '/reports',      icon: FileBarChart,  label: 'Reports',      module: 'hasReports',  perm: 'permReports' },
   { section: 'Admin' },
-  { path: '/staff',        icon: '👥',  label: 'Staff & HR',   perm: 'permStaff' },
-  { path: '/support',      icon: '🎫',  label: 'Support' },
-  { path: '/settings',     icon: '⚙',  label: 'Settings' },
+  { path: '/staff',        icon: Users,  label: 'Staff & access',   perm: 'permStaff' },
+  { path: '/support',      icon: CircleHelp,  label: 'Help & support' },
+  { path: '/settings',     icon: Settings,  label: 'Settings' },
 ]
 
 const SEVERITY_STYLES = {
@@ -41,7 +42,7 @@ const TYPE_LINKS = {
 
 function NotificationPanel({ onClose }) {
   const [alerts, setAlerts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => typeof window === 'undefined' || window.innerWidth >= 640)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -182,16 +183,16 @@ export default function Layout({ children }) {
   }, [showAlerts])
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="mca-shell flex h-screen bg-gray-50 overflow-hidden">
 
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-56' : 'w-16'} bg-[#0B2D24] flex flex-col transition-all duration-300 flex-shrink-0`}>
+      <aside className={`mca-sidebar  bg-[#0B2D24] flex flex-col transition-all duration-300 flex-shrink-0`}>
 
         {/* Logo */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
-              ✚
+              <Plus className="w-5 h-5" />
             </div>
             {sidebarOpen && (
               <div>
@@ -215,19 +216,20 @@ export default function Layout({ children }) {
               ) : <div key={i} className="my-1 mx-2 border-t border-white/10" />
             }
 
-            const isActive = location.pathname === item.path
+            const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path + '/'))
 
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => { if (window.innerWidth < 640) setSidebarOpen(false) }}
                 className={`flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm transition-all ${
                   isActive
                     ? 'bg-emerald-600 text-white'
                     : 'text-emerald-200/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
-                <span className="text-base flex-shrink-0">{item.icon}</span>
+                <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
                 {sidebarOpen && <span>{item.label}</span>}
               </Link>
             )
@@ -249,7 +251,7 @@ export default function Layout({ children }) {
                   onClick={logout}
                   className="text-emerald-400 text-xs hover:text-white transition-colors"
                 >
-                  Sign out
+                  <LogOut className="inline w-3 h-3 mr-1" />Sign out
                 </button>
               </div>
             )}
@@ -267,7 +269,7 @@ export default function Layout({ children }) {
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              ☰
+              <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-gray-800 font-semibold">
               {navItems.find(n => n.path === location.pathname)?.label || 'MedCareAxis'}
@@ -280,7 +282,7 @@ export default function Layout({ children }) {
                 onClick={() => setShowAlerts(v => !v)}
                 className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors relative"
               >
-                🔔
+                <Bell className="w-4 h-4" />
                 {alertCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
                     {alertCount > 9 ? '9+' : alertCount}

@@ -25,6 +25,7 @@ public class PushController : ControllerBase
 
     // Returns the VAPID public key so the client can subscribe
     [HttpGet("vapid-public-key")]
+    [Authorize(Policy = "PatientOnly")]
     public IActionResult GetPublicKey()
     {
         return Ok(new { publicKey = _config["VapidKeys:PublicKey"] });
@@ -32,6 +33,7 @@ public class PushController : ControllerBase
 
     // Patient portal calls this after subscribing in the browser
     [HttpPost("subscribe")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> Subscribe([FromBody] PushSubscribeRequest request)
     {
         var patientId  = GetPatientId();
@@ -44,6 +46,7 @@ public class PushController : ControllerBase
 
     // Unsubscribe (patient turns off notifications)
     [HttpPost("unsubscribe")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> Unsubscribe([FromBody] UnsubscribeRequest request)
     {
         var patientId = GetPatientId();
@@ -55,6 +58,7 @@ public class PushController : ControllerBase
 
     // Hospital staff can send a manual broadcast to all patients (admin only)
     [HttpPost("broadcast")]
+    [Authorize(Policy = "HospitalAdmin")]
     [SubscriptionCheck]
     public async Task<IActionResult> Broadcast([FromBody] BroadcastRequest request)
     {

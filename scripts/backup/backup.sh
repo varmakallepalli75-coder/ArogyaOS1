@@ -10,7 +10,7 @@ DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
 DB_NAME="${DB_NAME:-medcareaxis}"
 DB_USER="${DB_USER:-medcareaxis_user}"
-PGPASSWORD="${PGPASSWORD:-MedCareAxis@2024}"
+PGPASSWORD="${PGPASSWORD:?PGPASSWORD must be supplied securely}"
 BACKUP_DIR="${BACKUP_DIR:-/backups}"
 KEEP_DAYS="${KEEP_DAYS:-30}"
 

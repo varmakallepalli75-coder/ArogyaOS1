@@ -9,7 +9,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/referral")]
-[Authorize]
+[Authorize(Policy = "Patients")]
 [SubscriptionCheck]
 public class ReferralController : ControllerBase
 {

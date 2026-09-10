@@ -27,7 +27,6 @@ export default function Appointments() {
     Cancelled: 'bg-red-100 text-red-700',
   }
 
-  const today = new Date().toDateString()
   const upcoming = appointments.filter(a =>
     new Date(a.appointmentDateTime) >= new Date() &&
     a.status !== 'Cancelled')

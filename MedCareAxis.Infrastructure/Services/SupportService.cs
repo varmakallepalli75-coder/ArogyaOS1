@@ -64,8 +64,7 @@ public class SupportService : ISupportService
     public async Task<ApiResponse<TicketResponse>> CreateTicketAsync(
         CreateTicketRequest request, Guid hospitalId, string userId, string userName)
     {
-        var count = await _context.SupportTickets.CountAsync();
-        var ticketNumber = $"TKT-{DateTime.Now:yyyyMMdd}-{(count + 1):D4}";
+        var ticketNumber = $"TKT-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..21].ToUpperInvariant();
 
         if (!Enum.TryParse<TicketCategory>(request.Category, true, out var category))
             category = TicketCategory.Technical;

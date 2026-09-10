@@ -20,14 +20,17 @@ public class UnifiedPatientOtpRequest
 
 public class UploadDocumentRequest
 {
-    [Required]
+    [Required, MaxLength(50)]
     public string DocumentType { get; set; } = "Other";
-    [Required]
+    [Required, MaxLength(255)]
     public string FileName { get; set; } = string.Empty;
-    [Required]
+    [Required, StringLength(7000000)]
     public string FileBase64 { get; set; } = string.Empty;
+    [MaxLength(100)]
     public string MimeType { get; set; } = "application/pdf";
+    [MaxLength(1000)]
     public string? Description { get; set; }
+    [MaxLength(200)]
     public string? HospitalName { get; set; }
     public DateTime DocumentDate { get; set; } = DateTime.UtcNow;
 }

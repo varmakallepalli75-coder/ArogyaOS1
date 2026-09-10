@@ -21,6 +21,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpGet("today")]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> GetToday([FromQuery] Guid? doctorId)
     {
         var hospitalId = GetHospitalId();
@@ -30,6 +31,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> GetAll(
         [FromQuery] DateTime? date,
         [FromQuery] Guid? doctorId,
@@ -43,6 +45,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpGet("patient/{patientId}")]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> GetByPatient(
         Guid patientId,
         [FromQuery] int page = 1,
@@ -55,6 +58,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpGet("my/journey")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> GetMyJourney()
     {
         var hospitalId = GetHospitalId();
@@ -65,6 +69,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpGet("my")]
+    [Authorize(Policy = "PatientOnly")]
     public async Task<IActionResult> GetMyAppointments(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
@@ -77,6 +82,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> Create([FromBody] CreateAppointmentRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -88,6 +94,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpPut("{id}/status")]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> UpdateStatus(
         Guid id,
         [FromBody] UpdateAppointmentStatusRequest request)
@@ -99,6 +106,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpPost("{id}/collect-fee")]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> CollectFee(Guid id, [FromBody] CollectFeeRequest request)
     {
         var hospitalId = GetHospitalId();
@@ -109,6 +117,7 @@ public class AppointmentController : ControllerBase
     }
 
     [HttpPost("{id}/checkin")]
+    [Authorize(Policy = "Appointments")]
     public async Task<IActionResult> CheckIn(Guid id)
     {
         var hospitalId = GetHospitalId();

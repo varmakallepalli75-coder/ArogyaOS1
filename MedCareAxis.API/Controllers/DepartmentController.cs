@@ -9,7 +9,7 @@ namespace MedCareAxis.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "HospitalUser")]
 [SubscriptionCheck]
 public class DepartmentController : ControllerBase
 {
@@ -32,6 +32,7 @@ public class DepartmentController : ControllerBase
 
     // ─── POST api/department ──────────────────────────
     [HttpPost]
+    [Authorize(Policy = "HospitalAdmin")]
     public async Task<IActionResult> Create(
         [FromBody] CreateDepartmentRequest request)
     {
@@ -69,6 +70,7 @@ public class DepartmentController : ControllerBase
 
     // ─── POST api/department/doctors ──────────────────
     [HttpPost("doctors")]
+    [Authorize(Policy = "HospitalAdmin")]
     public async Task<IActionResult> CreateDoctor(
         [FromBody] CreateDoctorRequest request)
     {
@@ -83,6 +85,7 @@ public class DepartmentController : ControllerBase
 
     // ─── PUT api/department/doctors/{id} ─────────────
     [HttpPut("doctors/{id}")]
+    [Authorize(Policy = "HospitalAdmin")]
     public async Task<IActionResult> UpdateDoctor(
         Guid id, [FromBody] UpdateDoctorRequest request)
     {
@@ -97,6 +100,7 @@ public class DepartmentController : ControllerBase
 
     // ─── PUT api/department/doctors/{id}/availability ─
     [HttpPut("doctors/{id}/availability")]
+    [Authorize(Policy = "HospitalAdmin")]
     public async Task<IActionResult> UpdateAvailability(
         Guid id, [FromBody] bool isAvailable)
     {
@@ -109,6 +113,7 @@ public class DepartmentController : ControllerBase
 
     // ─── DELETE api/department/doctors/{id} ───────────
     [HttpDelete("doctors/{id}")]
+    [Authorize(Policy = "HospitalAdmin")]
     public async Task<IActionResult> DeleteDoctor(Guid id)
     {
         var hospitalId = GetHospitalId();

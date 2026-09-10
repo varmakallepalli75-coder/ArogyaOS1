@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
+using MedCareAxis.API.Security;
+using Microsoft.AspNetCore.RateLimiting;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
@@ -57,7 +60,9 @@ Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.DefaultInboundClaimTyp
 System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"]!;
+var secretKey = jwtSettings["SecretKey"];
+if (string.IsNullOrWhiteSpace(secretKey) || secretKey.Length < 32)
+    throw new InvalidOperationException("JwtSettings:SecretKey must be supplied securely and contain at least 32 characters.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -82,13 +87,32 @@ builder.Services.AddAuthentication(options =>
 });
 
 // ─── Controllers ──────────────────────────────────────
-builder.Services.AddControllers()
+builder.Services.AddControllers(options => options.Filters.Add<MedCareAxis.API.Filters.PaginationValidationFilter>())
     .AddJsonOptions(opts =>
     {
         opts.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddOpenApi();
+builder.Services.AddMedCareAxisAuthorization();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("auth", limiter =>
+    {
+        limiter.PermitLimit = 10;
+        limiter.Window = TimeSpan.FromMinutes(1);
+        limiter.QueueLimit = 0;
+    });
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 120, Window = TimeSpan.FromMinutes(1), QueueLimit = 0
+            }));
+});
 
 // ─── CORS ─────────────────────────────────────────────
 // A comma-separated string (not a JSON array) so appsettings.Development.json fully
@@ -127,6 +151,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSentryTracing();
 app.UseCors("MedCareAxisPolicy");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
