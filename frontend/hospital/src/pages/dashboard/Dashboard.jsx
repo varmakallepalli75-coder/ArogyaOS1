@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   CalendarCheck, Clock, CheckCircle2, Users, Stethoscope,
-  Building2, UserPlus, TrendingUp, AlertCircle, RefreshCw,
+  Building2, UserPlus, CreditCard, TrendingUp, AlertCircle, RefreshCw,
   ChevronDown, ChevronUp,
 } from 'lucide-react'
 import api from '../../services/api'
