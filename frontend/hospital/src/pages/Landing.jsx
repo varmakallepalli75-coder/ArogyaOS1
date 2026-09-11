@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Activity, ArrowRight, BarChart3, BedDouble, CalendarCheck, Check, HeartPulse, Menu, Pill, ShieldCheck, Stethoscope, TestTube2, Users, X } from 'lucide-react'
+import { Activity, ArrowRight, BarChart3, BedDouble, CalendarCheck, Check, Menu, Pill, ShieldCheck, Stethoscope, TestTube2, Users, X } from 'lucide-react'
+import BrandLogo from '../components/brand/BrandLogo'
 
 const features = [
   [Users, 'Patient management', 'One complete record from registration to discharge, ready whenever your team needs it.'],
@@ -16,7 +17,7 @@ export default function Landing() {
   return <div className="min-h-screen overflow-hidden bg-[#f7faf8] text-slate-900 selection:bg-emerald-200">
     <header className="absolute inset-x-0 top-0 z-50">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-8">
-        <Link to="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-600 text-white shadow-lg"><HeartPulse size={23}/></span><span className="text-xl font-bold tracking-[-.04em]">MedCare<span className="text-emerald-600">Axis</span></span></Link>
+        <Link to="/" aria-label="MedCareAxis home"><BrandLogo markClassName="h-11 w-11" wordmarkClassName="text-xl" /></Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex"><a href="#platform" className="hover:text-emerald-700">Platform</a><a href="#why" className="hover:text-emerald-700">Why us</a><a href="#security" className="hover:text-emerald-700">Security</a></nav>
         <div className="hidden items-center gap-3 md:flex"><Link to="/login" className="px-4 py-2 text-sm font-semibold">Sign in</Link><a href="#contact" className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Book a demo</a></div>
         <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-xl border bg-white md:hidden" aria-label="Menu">{open ? <X/> : <Menu/>}</button>
@@ -41,6 +42,6 @@ export default function Landing() {
 
       <section id="contact" className="px-5 py-24 lg:py-32"><div className="mx-auto max-w-6xl rounded-[2.5rem] bg-emerald-600 px-6 py-16 text-center text-white shadow-2xl"><Stethoscope className="mx-auto" size={38}/><h2 className="mx-auto mt-6 max-w-2xl text-4xl font-bold tracking-[-.045em] sm:text-5xl">Give your team more time for care.</h2><p className="mt-5 text-lg text-emerald-50">See how MedCareAxis can bring clarity, speed and confidence to your hospital.</p><div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><a href="mailto:hello@medcareaxis.com" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-4 font-bold text-emerald-700">Schedule a free demo <ArrowRight size={18}/></a><Link to="/login" className="rounded-full border border-white/30 px-7 py-4 font-bold">Existing customer sign in</Link></div></div></section>
     </main>
-    <footer className="border-t bg-white"><div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 sm:flex-row"><span className="font-bold text-slate-800">MedCareAxis</span><p>© 2026 MedCareAxis. Technology with care at its core.</p><Link to="/login" className="font-semibold">Hospital login</Link></div></footer>
+    <footer className="border-t bg-white"><div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-slate-500 sm:flex-row"><BrandLogo markClassName="h-8 w-8" wordmarkClassName="text-base" /><p>© 2026 MedCareAxis. Technology with care at its core.</p><Link to="/login" className="font-semibold">Hospital login</Link></div></footer>
   </div>
 }
