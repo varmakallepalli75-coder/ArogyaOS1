@@ -103,7 +103,18 @@ export default function Patients() {
         setError(res.message)
       }
     } catch (err) {
-      setError('Something went wrong. Please try again.')
+      const data = err.response?.data
+      const validationMessage = data?.errors
+        ? Object.values(data.errors).flat().find(Boolean)
+        : null
+      setError(
+        data?.message || validationMessage || data?.detail ||
+        (err.response?.status === 403
+          ? 'Your account does not have permission to register patients.'
+          : err.response?.status === 402
+            ? 'Your hospital subscription must be renewed before registering patients.'
+            : 'Patient could not be registered. Please check the details and try again.')
+      )
     } finally {
       setSaving(false)
     }
@@ -308,7 +319,9 @@ export default function Patients() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Mobile Number *</label>
-                    <input required value={form.mobileNumber} onChange={e => f('mobileNumber', e.target.value)}
+                    <input required inputMode="numeric" pattern="[0-9]{10,15}" minLength={10} maxLength={15}
+                      title="Enter 10 to 15 digits without spaces or country-code symbols"
+                      value={form.mobileNumber} onChange={e => f('mobileNumber', e.target.value.replace(/\D/g, ''))}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                   <div>
@@ -340,7 +353,9 @@ export default function Patients() {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Aadhaar Number</label>
-                    <input value={form.aadhaarNumber} onChange={e => f('aadhaarNumber', e.target.value)}
+                    <input inputMode="numeric" pattern="[0-9]{12}" maxLength={12}
+                      title="Aadhaar number must contain exactly 12 digits"
+                      value={form.aadhaarNumber} onChange={e => f('aadhaarNumber', e.target.value.replace(/\D/g, ''))}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                   </div>
                 </div>
