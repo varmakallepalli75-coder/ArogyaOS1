@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import BrandLogo from '../components/brand/BrandLogo'
 
 export default function Login() {
   const [tab, setTab] = useState('hospital')
@@ -82,11 +83,7 @@ export default function Login() {
       <div className="w-full max-w-md">
 
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl">🏥</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">MedCareAxis</h1>
-          <p className="text-gray-500 text-sm mt-1">Patient Portal</p>
+          <BrandLogo className="justify-center" markClassName="h-20 w-20" wordmarkClassName="text-3xl" subtitle="Patient Portal" />
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">

@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
-import { Activity, BedDouble, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileBarChart, FlaskConical, LayoutDashboard, LogOut, Menu, MoreHorizontal, Pill, Plus, Settings, Stethoscope, Users, WalletCards } from 'lucide-react'
+import { BrandMark } from '../brand/BrandLogo'
+import { Activity, BedDouble, Bell, CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileBarChart, FlaskConical, LayoutDashboard, LogOut, Menu, MoreHorizontal, Pill, Settings, Stethoscope, Users, WalletCards } from 'lucide-react'
 
 const ALL_NAV = [
   { section: 'Main' },
@@ -197,9 +198,7 @@ export default function Layout({ children }) {
         {/* Logo */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
-              <Plus className="w-5 h-5" />
-            </div>
+            <BrandMark className="w-9 h-9 flex-shrink-0" />
             {sidebarOpen && (
               <div>
                 <div className="text-white font-bold text-sm">MedCareAxis</div>

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
-import { Activity, Bell, Building2, CreditCard, FileClock, HeartPulse, LayoutDashboard, Megaphone, Plus, Settings, TicketCheck } from 'lucide-react'
+import BrandLogo from '../../components/brand/BrandLogo'
+import { Activity, Bell, Building2, CreditCard, FileClock, HeartPulse, LayoutDashboard, Megaphone, Settings, TicketCheck } from 'lucide-react'
 
 const NAV = [
   { icon: LayoutDashboard,  label: 'Dashboard',     path: '/super-admin' },
@@ -35,13 +36,7 @@ export default function SuperAdminLayout({ children, title, subtitle }) {
       <aside className="w-60 bg-slate-900 flex flex-col flex-shrink-0">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center font-bold text-white text-lg"><Plus className="w-5 h-5" /></div>
-            <div>
-              <div className="text-white font-bold text-sm">MedCareAxis</div>
-              <div className="text-emerald-400 text-xs font-medium">Super Admin</div>
-            </div>
-          </div>
+          <BrandLogo inverse markClassName="h-10 w-10" wordmarkClassName="text-base" subtitle="Super Admin" />
         </div>
 
         {/* Nav */}

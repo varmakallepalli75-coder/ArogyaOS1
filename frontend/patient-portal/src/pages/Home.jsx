@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
+import { BrandMark } from '../components/brand/BrandLogo'
 
 const STEPS = [
   { step: 1, label: 'Registered',         icon: '✓',  color: 'emerald' },
@@ -148,10 +149,13 @@ export default function Home() {
       {/* Header */}
       <div className="bg-emerald-600 text-white px-4 pt-8 pb-16">
         <div className="flex items-center justify-between mb-2">
-          <div>
-            <p className="text-emerald-200 text-sm">Welcome back</p>
-            <h1 className="text-xl font-bold">{user?.fullName}</h1>
-            <p className="text-emerald-200 text-xs mt-0.5">{user?.hospitalName}</p>
+          <div className="flex items-center gap-3">
+            <BrandMark className="h-11 w-11 flex-shrink-0" />
+            <div>
+              <p className="text-emerald-100 text-xs">Welcome back</p>
+              <h1 className="text-xl font-bold">{user?.fullName}</h1>
+              <p className="text-emerald-100 text-xs mt-0.5">{user?.hospitalName}</p>
+            </div>
           </div>
           <button onClick={logout} className="text-emerald-200 hover:text-white text-sm">
             Logout
